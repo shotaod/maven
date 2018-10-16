@@ -1,0 +1,40 @@
+import java.nio.file.Paths
+
+subprojects {
+    apply plugin: 'maven-publish'
+
+    publishing {
+        publications {
+            mavenGithubRepo(MavenPublication) {
+                from components.java
+                artifact sourceJar
+                pom {
+                    description = "A demonstration of Maven POM customization"
+                    licenses {
+                        license {
+                            name = "The Apache License, Version 2.0"
+                            url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = "ShotaOd"
+                            name = "Shota Oda"
+                            email = "shota.oda.cbn@gmail.com"
+                        }
+                    }
+                }
+            }
+        }
+        repositories {
+            maven {
+                def releaseDir = Paths.get(rootDir.absolutePath, '/docs/release')
+                println """
+                            | save artifacts
+                            | @ $releaseDir
+                        """.stripMargin()
+                url releaseDir.toUri()
+            }
+        }
+    }
+}
