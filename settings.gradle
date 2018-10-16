@@ -11,3 +11,5 @@ fileTree('.') {
     println('module: ' + it)
     include it
 }
+
+enableFeaturePreview('STABLE_PUBLISHING')
