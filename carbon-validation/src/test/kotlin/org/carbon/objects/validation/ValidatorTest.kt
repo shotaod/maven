@@ -29,14 +29,6 @@ class ValidatorTest {
         }
     }
 
-    data class Case(
-            val describe: String,
-            val input: Input,
-            val expected: Expected
-    ) {
-        override fun toString(): String = describe
-    }
-
     class Input {
         private var _name: String = "shota oda"
         private var _password: String = "password"
