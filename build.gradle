@@ -34,7 +34,7 @@ allprojects {
 subprojects {
 
     apply plugin: 'kotlin'
-    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
 
     sourceCompatibility = 1.8
 
@@ -80,16 +80,27 @@ subprojects {
         testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$versions.junit"
     }
 
-    // maven upload
-    uploadArchives {
+
+    task sourceJar(type: Jar) {
+        classifier "sources"
+        from sourceSets.main.allSource
+    }
+
+    publishing {
+        publications {
+            mavenGithubRepo(MavenPublication) {
+                from components.java
+                artifact sourceJar
+            }
+        }
         repositories {
-            mavenDeployer {
+            maven {
                 def releaseDir = Paths.get(rootDir.absolutePath, '/docs/release')
                 println """
-                    | save artifacts
-                    | @ $releaseDir
-                """.stripMargin()
-                repository url: releaseDir.toUri()
+                            | save artifacts
+                            | @ $releaseDir
+                        """.stripMargin()
+                url releaseDir.toUri()
             }
         }
     }
