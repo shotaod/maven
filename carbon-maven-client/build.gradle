@@ -1,0 +1,18 @@
+version 1.0
+
+ext {
+    versions = ext {
+        carbon = ext {
+            validator = 0.1
+        }
+    }
+}
+repositories {
+    maven {
+        url 'https://shotaod.github.io/maven/release'
+    }
+}
+
+dependencies {
+    implementation "org.carbon.objects:carbon-validation:$versions.carbon.validator"
+}
