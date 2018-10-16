@@ -2,7 +2,7 @@ import java.nio.file.Paths
 
 buildscript {
     ext {
-        kotlinVersion = '1.2.51'
+        kotlinVersion = '1.2.71'
     }
     repositories {
         mavenCentral()
@@ -88,7 +88,7 @@ subprojects {
     uploadArchives {
         repositories {
             mavenDeployer {
-                def releaseDir = Paths.get(projectDir.absolutePath, '/release')
+                def releaseDir = Paths.get(rootDir.absolutePath, '/docs/release')
                 println """
                     | save artifacts
                     | @ $releaseDir
