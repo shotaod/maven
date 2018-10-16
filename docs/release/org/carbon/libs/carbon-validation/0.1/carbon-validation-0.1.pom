@@ -5,6 +5,20 @@
   <groupId>org.carbon.libs</groupId>
   <artifactId>carbon-validation</artifactId>
   <version>0.1</version>
+  <description>A demonstration of Maven POM customization</description>
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>ShotaOd</id>
+      <name>Shota Oda</name>
+      <email>shota.oda.cbn@gmail.com</email>
+    </developer>
+  </developers>
   <dependencies>
     <dependency>
       <groupId>org.jetbrains.kotlin</groupId>
@@ -17,18 +31,6 @@
       <artifactId>kotlin-reflect</artifactId>
       <version>1.2.71</version>
       <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.1.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-params</artifactId>
-      <version>5.1.0</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
