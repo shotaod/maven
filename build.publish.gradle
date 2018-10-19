@@ -9,7 +9,7 @@ subprojects {
                 from components.java
                 artifact sourceJar
                 pom {
-                    description = "A demonstration of Maven POM customization"
+                    description = "carbon kotlin libraries"
                     licenses {
                         license {
                             name = "The Apache License, Version 2.0"
@@ -30,8 +30,8 @@ subprojects {
             maven {
                 def releaseDir = Paths.get(rootDir.absolutePath, '/docs/release')
                 println """
-                            | save artifacts
-                            | @ $releaseDir
+                            | Gloabl Publish Settings
+                            | artifact path @ $releaseDir
                         """.stripMargin()
                 url releaseDir.toUri()
             }
