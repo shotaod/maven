@@ -4,7 +4,7 @@
 # https://devcenter.wercker.com/overview-and-core-concepts/containers/
 # https://devcenter.wercker.com/administration/containers/additional/entrypoint/
 box:
-  id: shotaoda/gradle:4.10-jdk8-alpine
+  id: openjdk:8-jdk-alpine3.8
   cmd: /bin/sh
 
 # This is the build pipeline. Pipelines are the core of wercker
@@ -16,18 +16,18 @@ build:
   # https://devcenter.wercker.com/development/steps/
   steps:
   - script:
-      name: pre install for gradle
-      code: |
-        apk --no-cache add curl unzip
-  # https://github.com/wercker/step-gradle
-  - java/gradle:
-      task: build
-      cache_project_cache: true
-  # test
-  - java/gradle:
-      task: test
-      cache_project_cache: true
-  # coverage
-  - java/gradle:
-      task: jacocoTestReport coveralls
-      cache_project_cache: true
+      name: build
+      cwd: carbon-validation
+      code: ./gradlew build
+  - script:
+      name: test
+      cwd: carbon-validation
+      code: ./gradlew test
+  - script:
+      name: coverage
+      cwd: carbon-validation
+      code: ./gradlew jacocoTestReport
+  - script:
+      name: coverall
+      cwd: carbon-validation
+      code: ./gradlew coveralls
