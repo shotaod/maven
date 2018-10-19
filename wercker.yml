@@ -4,8 +4,8 @@
 # https://devcenter.wercker.com/overview-and-core-concepts/containers/
 # https://devcenter.wercker.com/administration/containers/additional/entrypoint/
 box:
-  id: openjdk:8-jdk-alpine3.8
-  cmd: /bin/sh
+  id: openjdk:8-jdk-slim
+  cmd: /bin/bash
 
 # This is the build pipeline. Pipelines are the core of wercker
 # Read more about pipelines on our dev center
@@ -27,3 +27,6 @@ build:
   - script:
       name: coverall
       code: ./gradlew carbon-validation:coveralls
+  - script:
+      name: codecov
+      code: bash <(curl -s https://codecov.io/bash)
