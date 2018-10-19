@@ -11,5 +11,10 @@ fileTree('.') {
     println('module: ' + it)
     include it
 }
-
-enableFeaturePreview('STABLE_PUBLISHING')
+if (settings.metaClass.respondsTo(settings, 'enableFeaturePreview')) {
+    println """
+    | Setting has @Incubating enableFeaturePreview 
+    | -> enableFeaturePreview('STABLE_PUBLISHING')
+    """.stripMargin()
+    enableFeaturePreview('STABLE_PUBLISHING')
+}
