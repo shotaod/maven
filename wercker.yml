@@ -15,14 +15,19 @@ build:
   # Read more about steps on our dev center:
   # https://devcenter.wercker.com/development/steps/
   steps:
+  - script:
+      name: pre install for gradle
+      code: |
+        apk --no-cache add curl unzip
   # https://github.com/wercker/step-gradle
   - java/gradle:
-    task: build
-    cache_project_cache: true
+      task: build
+      cache_project_cache: true
   # test
   - java/gradle:
-    task: test
-    cache_project_cache: true
+      task: test
+      cache_project_cache: true
   # coverage
   - java/gradle:
-    task: jacocoTestReport coveralls
+      task: jacocoTestReport coveralls
+      cache_project_cache: true
