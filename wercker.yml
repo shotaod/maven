@@ -2,7 +2,8 @@
 # Docker Hub https://hub.docker.com/_/openjdk/
 # Read more about containers on our dev center
 # https://devcenter.wercker.com/overview-and-core-concepts/containers/
-box: gradle:4.10.2-jre8-alpine
+# box: gradle:4.10.2-jre8-alpine ← wercker use bash
+box: gradle:4.10.2-jre8
 
 # This is the build pipeline. Pipelines are the core of wercker
 # Read more about pipelines on our dev center
