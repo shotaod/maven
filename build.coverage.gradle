@@ -9,4 +9,8 @@ subprojects {
             csv.enabled false
         }
     }
+
+    coveralls {
+        sourceDirs = files(sourceSets.main.allSource.srcDirs).files.absolutePath
+    }
 }
