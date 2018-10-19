@@ -1,61 +1,87 @@
 package org.carbon.objects.validation
 
+import org.carbon.objects.validation.OtherwiseClause.Companion.delegateOtherwise
 import org.carbon.objects.validation.evaluation.Evaluation
-import org.carbon.objects.validation.matcher.IntMatcher
-import org.carbon.objects.validation.matcher.StringMatcher
+import org.carbon.objects.validation.evaluation.IndexModifier
+import org.carbon.objects.validation.evaluation.KeyModifier
+import org.carbon.objects.validation.evaluation.NameModifier
 
+typealias Expression = () -> Evaluation
+typealias TypedExpression<T> = (T) -> Evaluation
+typealias ShapeExpression<T> = T.() -> Evaluation
+typealias Definition<T> = Assertion.(T) -> Unit
+
+interface Validated<T : Validated<T>> {
+    val def: Definition<T>
+}
 
 class Assertion {
-    val violations = ViolationList()
+    val rejection: Evaluation.RootRejection = Evaluation.RootRejection()
 
-    fun isValid(): Boolean = violations.isEmpty()
+    fun isValid(): Boolean = rejection.isValid()
 
-    infix fun String.should(block: StringMatcher.(String) -> Evaluation) =
-            call { block(StringMatcher, this) }
+    infix fun String.should(expression: TypedExpression<String>) = delegateOtherwise(rejection) { expression(this) }
 
-    infix fun Int.should(block: IntMatcher.(Int) -> Evaluation) =
-            call { block(IntMatcher, this) }
+    infix fun Int.should(expression: TypedExpression<Int>) = delegateOtherwise(rejection) { expression(this) }
 
-    private fun call(assertion: () -> Evaluation): ViolationClause {
-        val result = assertion()
-        return when (result) {
-            is Evaluation.Accept -> NoopViolationClause()
-            is Evaluation.Reject<*> -> SpecifyViolationClause(result, violations)
+    infix fun <T> T.should(expression: TypedExpression<T>) = delegateOtherwise(rejection) { expression(this) }
+
+    fun <T : Validated<T>> T.shouldValidated() = delegateOtherwise(rejection) { this.validate() }
+
+    infix fun <T> Iterable<T>.shouldEach(expression: TypedExpression<T>) = delegateOtherwise(rejection, this.map { { expression(it) } })
+
+    fun <T : Validated<T>> Iterable<T>.shouldEachValidated() = delegateOtherwise(rejection, this.map { { it.validate() } })
+}
+
+// ===================================================================================
+//                                                                     OtherwiseClause
+//                                                                          ==========
+sealed class OtherwiseClause(
+        open val rejection: Evaluation.RootRejection
+) {
+    infix fun otherwise(keyModifier: KeyModifier) = evaluate(keyModifier)
+
+    abstract fun evaluate(keyModifier: KeyModifier)
+
+    companion object {
+        fun delegateOtherwise(rejection: Evaluation.RootRejection, expression: Expression): OtherwiseClause =
+                UnitOtherwiseClause(rejection, expression)
+
+        fun delegateOtherwise(rejection: Evaluation.RootRejection, expressions: List<Expression>): OtherwiseClause =
+                IndexedOtherwiseClause(rejection, expressions)
+    }
+
+    open class UnitOtherwiseClause(
+            override val rejection: Evaluation.RootRejection,
+            private val expression: Expression
+    ) : OtherwiseClause(rejection) {
+        override fun evaluate(keyModifier: KeyModifier) {
+            val evaluation = expression()
+            if (evaluation is Evaluation.Rejection<*>)
+                rejection.addRejection(evaluation modify keyModifier)
+        }
+    }
+
+    class IndexedOtherwiseClause(
+            override val rejection: Evaluation.RootRejection,
+            private val expressions: List<Expression>
+    ) : OtherwiseClause(rejection) {
+        override fun evaluate(keyModifier: KeyModifier) {
+            expressions
+                    .asSequence()
+                    .mapIndexed { i, expr ->
+                        (expr() as? Evaluation.Rejection<*>)
+                                ?.let {
+                                    it modify keyModifier modify IndexModifier(i)
+                                }
+                    }
+                    .filterNotNull()
+                    .forEach { rejection.addRejection(it) }
         }
     }
 }
 
 // ===================================================================================
-//                                                                     ViolationClause
+//                                                                        Modifier API
 //                                                                          ==========
-sealed class ViolationClause {
-    abstract infix fun otherwise(specify: Specify)
-}
-
-class NoopViolationClause : ViolationClause() {
-    override fun otherwise(specify: Specify) = Unit
-}
-
-class SpecifyViolationClause<T : Any>(
-        private val rejects: Evaluation.Reject<T>,
-        private val list: ViolationList) : ViolationClause() {
-    override fun otherwise(specify: Specify) {
-        specify.toViolation(rejects).also { list.add(it) }
-    }
-}
-
-// ===================================================================================
-//                                                                          Specify
-//                                                                          ==========
-class Specify(
-        private vararg val key: String,
-        private val at: Int? = null,
-        private val message: String? = null
-) {
-    fun <T : Any> toViolation(reject: Evaluation.Reject<T>): Violation<T> = Violation(
-            if (message !== null) message else reject.message,
-            ViolationKey(key.toList(), at),
-            reject.type,
-            reject.source
-    )
-}
+fun String.invalidate() = NameModifier(this)

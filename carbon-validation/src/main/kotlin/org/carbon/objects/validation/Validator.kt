@@ -1,15 +1,17 @@
 package org.carbon.objects.validation
 
+import org.carbon.objects.validation.evaluation.Evaluation
+
 /**
  * @author Soda 2018/10/13.
  */
 object Validator {
-    fun <T : Validated<T>> validate(target: T): ValidationResult {
+    fun <T : Validated<T>> validate(test: T): Evaluation {
         val assert = Assertion()
-        target.def(assert, target)
+        test.def(assert, test)
         return when {
-            assert.isValid() -> ObservanceResult(target)
-            else -> ViolationResult(assert.violations)
+            assert.isValid() -> Evaluation.Acceptance
+            else -> assert.rejection
         }
     }
 }

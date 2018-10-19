@@ -1,4 +1,4 @@
-package org.carbon.objects.validation.evaluation
+package org.carbon.objects.validation
 
 enum class Logical(private val operator: String) {
     AND("&&"),

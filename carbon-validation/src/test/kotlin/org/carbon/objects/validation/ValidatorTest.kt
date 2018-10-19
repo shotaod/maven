@@ -1,6 +1,15 @@
 package org.carbon.objects.validation
 
-import org.junit.jupiter.api.Assertions.assertTrue
+import io.kotlintest.matchers.boolean.shouldBeTrue
+import io.kotlintest.matchers.types.shouldBeTypeOf
+import io.kotlintest.should
+import io.kotlintest.shouldBe
+import org.carbon.objects.validation.evaluation.Evaluation
+import org.carbon.objects.validation.evaluation.UnitRejection
+import org.carbon.objects.validation.evaluation.source.BasicCode
+import org.carbon.objects.validation.evaluation.source.CompositionCode
+import org.carbon.objects.validation.evaluation.source.LengthCode
+import org.carbon.objects.validation.evaluation.source.StringCode
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 
@@ -8,86 +17,141 @@ import org.junit.jupiter.params.provider.MethodSource
  * @author Soda 2018/10/08.
  */
 class ValidatorTest {
-    data class Person(
-            val name: String,
-            val password: String,
-            val password2: String,
-            val emails: List<String>
-    ) : Validated<Person> by PersonSchema
-
-    object PersonSchema : Validated<Person> {
-        override val def: Definition<Person> = {
-            it.name should { and(it min 5, it max 10) } otherwise Specify("name")
-            //it.password should { it minEq 8 } otherwise Specify("password")
-            //it.password2 should { it minEq 8 } otherwise Specify("password2")
-            val p2 = it.password2
-            it.password should { it eq p2 } otherwise Specify("password")
-
-            it.emails.forEachIndexed { i, email ->
-                email should { it be Email } otherwise Specify("emails", at = i)
-            }
-        }
+    interface Input {
+        fun value(): Any
+        fun tryValidate(): Evaluation
     }
 
-    class Input {
+    class PersonInput : Input {
         private var _name: String = "shota oda"
-        private var _password: String = "password"
-        private var _password2: String = "password"
+        private var _password: String = "password1"
+        private var _password2: String = "password1"
         private var _emails: List<String> = listOf("shota@cbn.org")
+        private var _address: List<String> = listOf()
 
-        fun name(s: String): Input {
+        fun name(s: String): PersonInput {
             _name = s
             return this
         }
 
-        fun password(p: String): Input {
+        fun password(p: String): PersonInput {
             _password = p
             return this
         }
 
-        fun password2(p: String): Input {
+        fun password2(p: String): PersonInput {
             _password2 = p
             return this
         }
 
-        fun emails(vararg s: String): Input {
+        fun emails(vararg s: String): PersonInput {
             _emails = s.toList()
             return this
         }
 
-        fun person() = Person(_name, _password, _password2, _emails)
+        override fun value(): Person = Person(_name, _password, _password2, _emails, _address)
+
+        override fun tryValidate(): Evaluation = value().validate()
     }
 
-    class Expected {
-        private lateinit var _assert: (vr: ValidationResult) -> Unit
-
-        fun toBe(assert: (ValidationResult) -> Unit): Expected {
-            _assert = assert
+    class ClassRoomInput : Input {
+        private val _people: MutableList<Person> = mutableListOf()
+        fun person(person: PersonInput): ClassRoomInput {
+            _people.add(person.value())
             return this
         }
 
-        val assert get() = _assert
+        override fun value(): ClassRoom = ClassRoom(_people)
 
-        fun toBeObservance() = toBe { res -> res is ObservanceResult<*> }
+        override fun tryValidate(): Evaluation = value().validate()
+    }
 
-        fun toBeViolation(assertDetail: (vs: ViolationList) -> Unit = {}) = toBe { res ->
-            assertTrue { res is ViolationResult }
-            val vr = res as ViolationResult
-            vr.violations.forEach(::println)
-            assertDetail(vr.violations)
+    class Expected {
+        private var _assertions: List<(evaluation: Evaluation) -> Unit> = emptyList()
+
+        fun assert(evaluation: Evaluation) = _assertions.forEach { it(evaluation) }
+
+        fun toBeObservance(): Expected {
+            _assertions += { it.shouldBeTypeOf<Evaluation.Acceptance>() }
+            return this
+        }
+
+        fun toBeViolation(): Expected {
+            _assertions += { res ->
+                res should { (it is Evaluation.Rejection<*>).shouldBeTrue() }
+                println((res as Evaluation.Rejection<*>))
+            }
+            return this
+        }
+
+        fun hasNameViolation(): Expected {
+            _assertions += { res ->
+                val rejection = (res as Evaluation.RootRejection).rejections[0]
+                rejection.key.qualifiedName shouldBe "name"
+                rejection.source.code shouldBe CompositionCode.And
+                val andNode = rejection.source.params[0]
+                andNode should { (it is UnitRejection<*>).shouldBeTrue() }
+                val andNodeSource = (andNode as UnitRejection<*>).source
+                andNodeSource.code shouldBe LengthCode.Max
+                andNodeSource.params[0] shouldBe 10
+            }
+            return this
+        }
+
+        fun hasEqualViolation(param1: String, param2: String): Expected {
+            _assertions += { res ->
+                val rejection = (res as Evaluation.RootRejection).rejections[0]
+                rejection.key.qualifiedName shouldBe "password"
+                rejection.source.code shouldBe BasicCode.Equal
+                rejection.source.params[0] shouldBe param1
+                rejection.source.params[1] shouldBe param2
+            }
+            return this
+        }
+
+        fun hasEmailViolation(at: Int): Expected {
+            _assertions += { res ->
+                val rejection = (res as Evaluation.RootRejection).rejections[0]
+                rejection.key.qualifiedName shouldBe "emails[$at]"
+                rejection.source.code shouldBe StringCode.Email
+                rejection.source.params should { it.isEmpty().shouldBeTrue() }
+            }
+            return this
         }
     }
 
     companion object {
+        @Suppress("unused")
         @JvmStatic
         fun data() = listOf(
-                case("noc violation")(Input(), Expected().toBeObservance()),
-                case("single violation")(Input().name("too long name..."), Expected().toBeViolation()),
-                case("composite violation")(Input().password("password").password2("hogehoge"), Expected().toBeViolation()),
-                case("list violation")(Input().emails("email@valid.com", "email@..invalid"), Expected().toBeViolation())
+                case("no violation")(PersonInput(), Expected().toBeObservance()),
+                case("single violation")(
+                        PersonInput().name("too long name..."),
+                        Expected().toBeViolation().hasNameViolation()),
+                case("composite violation")(
+                        PersonInput().password("password1").password2("hogehoge"),
+                        Expected().toBeViolation().hasEqualViolation(param1 = "password1", param2 = "hogehoge")
+                ),
+                case("list violation")(
+                        PersonInput().emails("email@valid.com", "email@..invalid"),
+                        Expected().toBeViolation().hasEmailViolation(at = 1)),
+                case("nested validation success")(
+                        ClassRoomInput()
+                                .person(PersonInput())
+                                .person(PersonInput())
+                                .person(PersonInput()),
+                        Expected().toBeObservance()
+                ),
+                case("nested violation")(
+                        ClassRoomInput()
+                                .person(PersonInput().name("too long name..."))
+                                .person(PersonInput().password("password1").password2("hogehoge"))
+                                .person(PersonInput().emails("email@valid.com", "email@..invalid")),
+                        Expected().toBeViolation()
+                )
         )
 
-        private val case: (describe: String) -> (input: Input, expected: Expected) -> Array<*> = { describe ->
+        private val case: (describe: String) -> (input: Input, expected: Expected) -> Array<Any> = { describe ->
             { input, expected ->
                 arrayOf(describe, input, expected)
             }
@@ -98,8 +162,8 @@ class ValidatorTest {
     @MethodSource("data")
     @Suppress("UNUSED_PARAMETER")
     fun validate(describe: String, input: Input, expected: Expected) {
-        val person = input.person()
-        val result = Validator.validate(person)
+        val result = input.tryValidate()
+        println(result.describe())
         expected.assert(result)
     }
 }
