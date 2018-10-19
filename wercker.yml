@@ -14,19 +14,15 @@ build:
   steps:
   # https://github.com/wercker/step-gradle
   - java/gradle:
-    task:
-      - build
+    task: build
     cache_project_cache: true
   # test
   - java/gradle:
-    task:
-      - test
+    task: test
     cache_project_cache: true
   # coverage
   - java/gradle:
-    task:
-      - jacocoTestReport
-      - coveralls
+    task: jacocoTestReport coveralls
 
 
 
