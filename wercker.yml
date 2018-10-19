@@ -17,17 +17,13 @@ build:
   steps:
   - script:
       name: build
-      cwd: carbon-validation
-      code: ./gradlew build
+      code: ./gradlew carbon-validation:build
   - script:
       name: test
-      cwd: carbon-validation
-      code: ./gradlew test
+      code: ./gradlew carbon-validation:test
   - script:
       name: coverage
-      cwd: carbon-validation
-      code: ./gradlew jacocoTestReport
+      code: ./gradlew carbon-validation:jacocoTestReport
   - script:
       name: coverall
-      cwd: carbon-validation
-      code: ./gradlew coveralls
+      code: ./gradlew carbon-validation:coveralls
