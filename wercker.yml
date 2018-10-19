@@ -2,7 +2,7 @@
 # Docker Hub https://hub.docker.com/_/openjdk/
 # Read more about containers on our dev center
 # https://devcenter.wercker.com/overview-and-core-concepts/containers/
-box: openjdk:8-jdk
+box: gradle:4.10.2-jre8-alpine
 
 # This is the build pipeline. Pipelines are the core of wercker
 # Read more about pipelines on our dev center
@@ -23,7 +23,3 @@ build:
   # coverage
   - java/gradle:
     task: jacocoTestReport coveralls
-
-
-
-
