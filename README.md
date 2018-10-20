@@ -5,5 +5,11 @@ powered maven repos by github page hosting
 
 ## Carbon Validation
 [![wercker status](https://app.wercker.com/status/ee54ade2bfebafa23d061afcccfa03de/s/master "wercker status")](https://app.wercker.com/project/byKey/ee54ade2bfebafa23d061afcccfa03de)
+
 [![Coverage Status](https://coveralls.io/repos/github/ShotaOd/maven/badge.svg)](https://coveralls.io/github/ShotaOd/maven)
 [![codecov](https://codecov.io/gh/ShotaOd/maven/branch/master/graph/badge.svg)](https://codecov.io/gh/ShotaOd/maven)
+
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=ShotaOd_maven&metric=alert_status)](https://sonarcloud.io/dashboard?id=ShotaOd_maven)
+[![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=ShotaOd_maven&metric=sqale_rating)](https://sonarcloud.io/component_measures?id=ShotaOd_maven&metric=Maintainability)
+[![Lines](https://sonarcloud.io/api/project_badges/measure?project=ShotaOd_maven&metric=ncloc)](https://sonarcloud.io/component_measures?id=ShotaOd_maven&metric=ncloc)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ShotaOd_maven&metric=bugs)](https://sonarcloud.io/project/issues?id=ShotaOd_maven&resolved=false&types=BUG)
