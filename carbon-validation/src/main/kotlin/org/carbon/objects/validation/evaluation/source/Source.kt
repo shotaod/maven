@@ -10,6 +10,7 @@ open class Source(
     override fun describe(i: Int): String = """(
         |${i.space()} code=${code.describe(i.indent())}
         |${i.space()} params=${params.describe(i.indent())}
+        |${i.space()} message="$defaultMessage"
         |${i.space()} )
     """.trimMargin()
 }

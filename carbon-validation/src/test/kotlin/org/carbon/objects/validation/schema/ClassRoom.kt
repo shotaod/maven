@@ -1,4 +1,8 @@
-package org.carbon.objects.validation
+package org.carbon.objects.validation.schema
+
+import org.carbon.objects.validation.Definition
+import org.carbon.objects.validation.Validated
+import org.carbon.objects.validation.invalidate
 
 
 data class ClassRoom(

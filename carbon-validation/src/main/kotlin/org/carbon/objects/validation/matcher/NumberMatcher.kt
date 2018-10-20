@@ -1,8 +1,10 @@
 package org.carbon.objects.validation.matcher
 
+import org.carbon.objects.validation.ShapeExpression
 import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.source.BasicCode
 import org.carbon.objects.validation.evaluation.source.LengthCode
+import org.carbon.objects.validation.evaluation.source.NumberCode
 import org.carbon.objects.validation.evaluation.source.Param
 
 infix fun Number.eq(other: Number): Evaluation =
@@ -13,7 +15,7 @@ infix fun Number.eq(other: Number): Evaluation =
                 "values \"$this\" and \"$other\" are not match"
         )
 
-infix fun Int.range(range: IntRange): Evaluation {
+infix fun Int.withIn(range: IntRange): Evaluation {
     val min = range.first
     val max = range.last
     if (min > max)
@@ -46,3 +48,13 @@ infix fun Int.max(max: Int): Evaluation {
             "number must be greater than $max"
     )
 }
+
+fun Int.isNatural(): Evaluation =
+        if (this > 0) Evaluation.Acceptance
+        else this.reject(
+                NumberCode.Natural,
+                Param(emptyList<Any>()),
+                "number must be natural"
+        )
+
+val Natural: ShapeExpression<Int> = { this.isNatural() }
