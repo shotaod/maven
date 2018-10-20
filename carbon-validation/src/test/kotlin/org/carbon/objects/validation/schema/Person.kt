@@ -4,7 +4,7 @@ import org.carbon.objects.validation.Definition
 import org.carbon.objects.validation.Validated
 import org.carbon.objects.validation.invalidate
 import org.carbon.objects.validation.matcher.Email
-import org.carbon.objects.validation.matcher.IncludeShape.Companion.OneOfChar
+import org.carbon.objects.validation.matcher.IncludeShape.AnyOfChar
 import org.carbon.objects.validation.matcher.Natural
 import org.carbon.objects.validation.matcher.URL
 import org.carbon.objects.validation.matcher.and
@@ -32,8 +32,8 @@ object PersonSchema : Validated<Person> {
         person.password should {
             and(
                     or(
-                            it include OneOfChar("~!@#$%^&*()"),
-                            it include OneOfChar("1234567890")
+                            it include AnyOfChar("~!@#$%^&*()"),
+                            it include AnyOfChar("1234567890")
                     ),
                     it min 8,
                     it eq person.password2

@@ -53,13 +53,9 @@ infix fun String.has(string: String): Evaluation =
         )
 
 sealed class IncludeShape {
-    class AnyOf(vararg val text: String) : IncludeShape()
-    class AllOf(vararg val text: String) : IncludeShape()
-
-    companion object {
-        @Suppress("FunctionName")
-        fun OneOfChar(chars: String): AnyOf = AnyOf(*chars.toCharArray().map(Char::toString).distinct().toTypedArray())
-    }
+    open class AnyOf(vararg val text: String) : IncludeShape()
+    open class AllOf(vararg val text: String) : IncludeShape()
+    class AnyOfChar(chars: String): AnyOf(*chars.toCharArray().map(Char::toString).distinct().toTypedArray())
 }
 
 infix fun String.include(shape: IncludeShape): Evaluation = when (shape) {
