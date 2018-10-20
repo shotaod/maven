@@ -1,12 +1,14 @@
 buildscript {
     ext {
         kotlinVersion = '1.2.71'
+        sonarqubeVersion = '2.6'
     }
     repositories {
         mavenCentral()
     }
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:$sonarqubeVersion"
     }
 }
 
@@ -92,3 +94,4 @@ subprojects {
 
 apply from: 'build.publish.gradle'
 apply from: 'build.coverage.gradle'
+apply from: 'build.quality.gradle'

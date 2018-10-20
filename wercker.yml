@@ -31,3 +31,11 @@ build:
   - script:
       name: codecov
       code: bash <(curl -s https://codecov.io/bash)
+  - script:
+      name: sonarqube
+      code: |
+        ./gradlew sonarqube \
+        -Dsonar.projectKey=ShotaOd_maven \
+        -Dsonar.organization=shotaod-github \
+        -Dsonar.host.url=https://sonarcloud.io \
+        -Dsonar.login=$SONARQUBE_TOKEN
