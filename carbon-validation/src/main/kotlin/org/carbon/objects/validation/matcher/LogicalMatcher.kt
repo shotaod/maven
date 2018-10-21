@@ -11,6 +11,8 @@ import org.carbon.objects.validation.evaluation.Key
  */
 infix fun <T> T.be(expr: ShapeExpression<T>): Evaluation = expr(this)
 
+infix fun <T> T?.mayBe(expr: ShapeExpression<T>): Evaluation = this?.let { expr(it) } ?: Evaluation.Acceptance
+
 // -----------------------------------------------------
 //                                               Logical
 //                                               -------
