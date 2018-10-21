@@ -20,32 +20,20 @@ infix fun String.min(min: Int): Evaluation =
         if (this.length > min) Evaluation.Acceptance
         else this.reject(
                 LengthCode.Min,
-                Param(listOf(min))
-        )
-
-infix fun String.minEq(min: Int): Evaluation =
-        if (this.length >= min) Evaluation.Acceptance
-        else this.reject(
-                LengthCode.MinEq,
-                Param(listOf(min))
+                Param(listOf(min)),
+                "length should be greater or equal $min"
         )
 
 infix fun String.max(max: Int): Evaluation =
         if (this.length < max) Evaluation.Acceptance
         else this.reject(
                 LengthCode.Max,
-                Param(listOf(max))
-        )
-
-infix fun String.maxEq(max: Int): Evaluation =
-        if (this.length <= max) Evaluation.Acceptance
-        else this.reject(
-                LengthCode.MaxEq,
-                Param(listOf(max))
+                Param(listOf(max)),
+                "length should be less or equal $max"
         )
 
 infix fun String.has(string: String): Evaluation =
-        if (this.contains(string)) Evaluation.Acceptance
+        if (string in this) Evaluation.Acceptance
         else this.reject(
                 StringCode.Contain,
                 Param(listOf(string)),
@@ -55,7 +43,7 @@ infix fun String.has(string: String): Evaluation =
 sealed class IncludeShape {
     open class AnyOf(vararg val text: String) : IncludeShape()
     open class AllOf(vararg val text: String) : IncludeShape()
-    class AnyOfChar(chars: String): AnyOf(*chars.toCharArray().map(Char::toString).distinct().toTypedArray())
+    class AnyOfChar(chars: String) : AnyOf(*chars.toCharArray().map(Char::toString).distinct().toTypedArray())
 }
 
 infix fun String.include(shape: IncludeShape): Evaluation = when (shape) {
@@ -77,8 +65,21 @@ infix fun String.include(shape: IncludeShape): Evaluation = when (shape) {
     }
 }
 
+private val regCache: MutableMap<String, Regex> = mutableMapOf()
+infix fun String.matchReg(regStr: String): Evaluation {
+    val regex = regCache.computeIfAbsent(regStr) { regStr.toRegex() }
+    return if (regex.matches(this)) Evaluation.Acceptance
+    else this.reject(
+            StringCode.Regex,
+            Param(listOf(regex)),
+            "Should match $regStr"
+    )
+}
+
+val Reg: (reg: String) -> ShapeExpression<String> = { { this.matchReg(it) } }
+
 // misc
-private val urlRegex = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]".toRegex()
+private val urlRegex = "^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]".toRegex()
 private val emailRegex = "^[a-zA-Z0-9!#$%&'_`/=~*+\\-?^{|}]+(\\.[a-zA-Z0-9!#$%&'_`/=~*+\\-?^{|}]+)*+(.*)@[a-zA-Z0-9][a-zA-Z0-9\\-]*(\\.[a-zA-Z0-9\\-]+)+$".toRegex()
 fun String.isEmail(): Evaluation =
         if (emailRegex.matches(this)) Evaluation.Acceptance

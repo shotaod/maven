@@ -26,9 +26,7 @@ sealed class CompositionCode(override val child: Code) : Code("Composition", chi
 
 sealed class LengthCode(override val child: Code) : Code("Length", child) {
     object Min : LengthCode(Code("Min"))
-    object MinEq : LengthCode(Code("MinEq"))
     object Max : LengthCode(Code("Max"))
-    object MaxEq : LengthCode(Code("MaxEq"))
     object Range : LengthCode(Code("Range"))
 }
 
@@ -38,6 +36,7 @@ sealed class IncludeCode(override val child: Code) : Code("Include", child) {
 }
 
 abstract class StringCode(override val child: Code) : Code("String", child) {
+    object Regex: StringCode(Code("Regex"))
     object Email : StringCode(Code("Email"))
     object URL : StringCode(Code("URL"))
     object Contain : StringCode(Code("Contain"))
