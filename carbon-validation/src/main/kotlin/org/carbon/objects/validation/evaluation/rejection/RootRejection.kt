@@ -27,8 +27,8 @@ open class RootRejection(
     operator fun get(key: String): Rejection<*>? = _rejections[key]
 
     override fun describe(i: Int): String = _rejections.all.entries
-            .joinToString(separator = "\n", prefix = "Rejection(\n", postfix = ")")
-            { "${i.space()}- [${it.key}]: ${it.value.describe(i.indent())}" }
+            .joinToString(separator = "\n", prefix = "Rejection(\n${i.render()}", postfix = ")")
+            { "${i.indent().render()}- [${it.key}]: ${it.value.describe(i.indent().indent().indent())}" }
 
     override fun flatten(): List<Rejection<*>> =
             if (key === Key.Root) _rejections

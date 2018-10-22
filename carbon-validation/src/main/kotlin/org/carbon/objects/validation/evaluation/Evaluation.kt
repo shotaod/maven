@@ -22,10 +22,10 @@ sealed class Evaluation : Describe {
 
         override fun describe(i: Int): String = """
                 |${this::class.simpleName}(
-                |${i.space()}key=${key.describe(i.indent())},
-                |${i.space()}original=$original,
-                |${i.space()}source=${source.describe(i.indent())}
-                |${i.space()})
+                |${i.render()}key=${key.describe(i.indent())},
+                |${i.render()}original=$original,
+                |${i.render()}source=${source.describe(i.indent())}
+                |${i.render()})
                 """.trimMargin()
 
         // todo [help] wanna make protected

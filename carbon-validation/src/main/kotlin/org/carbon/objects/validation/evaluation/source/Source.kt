@@ -8,9 +8,9 @@ open class Source(
         open val defaultMessage: String? = ""
 ) : Describe {
     override fun describe(i: Int): String = """(
-        |${i.space()} code=${code.describe(i.indent())}
-        |${i.space()} params=${params.describe(i.indent())}
-        |${i.space()} message="$defaultMessage"
-        |${i.space()} )
+        |${i.render()} code=${code.describe(i.indent())}
+        |${i.render()} params=${params.describe(i.indent())}
+        |${i.render()} message="$defaultMessage"
+        |${i.render()} )
     """.trimMargin()
 }
