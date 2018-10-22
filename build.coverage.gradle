@@ -4,10 +4,14 @@ subprojects {
 
     jacocoTestReport {
         reports {
+            //noinspection GroovyAssignabilityCheck
             xml.enabled true
+            //noinspection GroovyAssignabilityCheck
             html.enabled true
+            //noinspection GroovyAssignabilityCheck
             csv.enabled false
         }
+        // sourceDirectories = files(sourceSets.main.allSource.srcDirs)
     }
 
     coveralls {
