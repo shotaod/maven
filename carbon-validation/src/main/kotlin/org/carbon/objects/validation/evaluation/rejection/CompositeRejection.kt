@@ -11,8 +11,8 @@ import org.carbon.objects.validation.evaluation.source.Source
 data class CompositeRejection<T : Any>(
         override var _key: Key,
         override val original: T,
-        val logical: Logical,
-        val _rejections: List<Rejection<*>>
+        private val logical: Logical,
+        private val _rejections: List<Rejection<*>>
 ) : Evaluation.Rejection<T>(
         _key,
         original,
