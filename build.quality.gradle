@@ -2,9 +2,8 @@ subprojects {
     apply plugin: "org.sonarqube"
     sonarqube {
         //noinspection GroovyAssignabilityCheck
-        //properties {
-        //    properties['sonar.sources'] += sourceSets.custom.allSource.srcDirs
-        //    properties['sonar.tests'] += sourceSets.integTest.allSource.srcDirs
-        //}
+        properties {
+            property "sonar.jacoco.reportPath", "${project.buildDir}/jacoco/test.exec"
+        }
     }
 }
