@@ -5,10 +5,11 @@ import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.IndexModifier
 import org.carbon.objects.validation.evaluation.KeyModifier
 import org.carbon.objects.validation.evaluation.NameModifier
+import org.carbon.objects.validation.evaluation.rejection.RootRejection
 
 typealias Expression = () -> Evaluation
 typealias TypedExpression<T> = (T) -> Evaluation
-typealias ShapeExpression<T> = T.() -> Evaluation
+typealias BeCounterExpression<T> = T.() -> Evaluation
 typealias Definition<T> = Assertion.(T) -> Unit
 
 interface Validated<T : Validated<T>> {
@@ -16,7 +17,7 @@ interface Validated<T : Validated<T>> {
 }
 
 class Assertion {
-    val rejection: Evaluation.RootRejection = Evaluation.RootRejection()
+    val rejection: RootRejection = RootRejection()
 
     fun isValid(): Boolean = rejection.isValid()
 
@@ -37,22 +38,22 @@ class Assertion {
 //                                                                     OtherwiseClause
 //                                                                          ==========
 sealed class OtherwiseClause(
-        open val rejection: Evaluation.RootRejection
+        open val rejection: RootRejection
 ) {
     infix fun otherwise(keyModifier: KeyModifier) = evaluate(keyModifier)
 
     abstract fun evaluate(keyModifier: KeyModifier)
 
     companion object {
-        fun delegateOtherwise(rejection: Evaluation.RootRejection, expression: Expression): OtherwiseClause =
+        fun delegateOtherwise(rejection: RootRejection, expression: Expression): OtherwiseClause =
                 UnitOtherwiseClause(rejection, expression)
 
-        fun delegateOtherwise(rejection: Evaluation.RootRejection, expressions: List<Expression>): OtherwiseClause =
+        fun delegateOtherwise(rejection: RootRejection, expressions: List<Expression>): OtherwiseClause =
                 IndexedOtherwiseClause(rejection, expressions)
     }
 
     open class UnitOtherwiseClause(
-            override val rejection: Evaluation.RootRejection,
+            override val rejection: RootRejection,
             private val expression: Expression
     ) : OtherwiseClause(rejection) {
         override fun evaluate(keyModifier: KeyModifier) {
@@ -63,7 +64,7 @@ sealed class OtherwiseClause(
     }
 
     class IndexedOtherwiseClause(
-            override val rejection: Evaluation.RootRejection,
+            override val rejection: RootRejection,
             private val expressions: List<Expression>
     ) : OtherwiseClause(rejection) {
         override fun evaluate(keyModifier: KeyModifier) {

@@ -27,7 +27,6 @@ sealed class CompositionCode(override val child: Code) : Code("Composition", chi
 sealed class LengthCode(override val child: Code) : Code("Length", child) {
     object Min : LengthCode(Code("Min"))
     object Max : LengthCode(Code("Max"))
-    object Range : LengthCode(Code("Range"))
 }
 
 sealed class IncludeCode(override val child: Code) : Code("Include", child) {

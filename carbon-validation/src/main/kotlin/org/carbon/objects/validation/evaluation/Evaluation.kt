@@ -1,8 +1,6 @@
 package org.carbon.objects.validation.evaluation
 
 import org.carbon.objects.validation.Describe
-import org.carbon.objects.validation.evaluation.source.Code
-import org.carbon.objects.validation.evaluation.source.DelegateParam
 import org.carbon.objects.validation.evaluation.source.Source
 
 sealed class Evaluation : Describe {
@@ -29,23 +27,11 @@ sealed class Evaluation : Describe {
                 |${i.space()}source=${source.describe(i.indent())}
                 |${i.space()})
                 """.trimMargin()
-    }
 
-    object Root {
-        override fun toString(): String = "ROOT_VALUE"
-    }
+        // todo [help] wanna make protected
+        // @see https://discuss.kotlinlang.org/t/cannot-access-protected-method-declared-in-super-class/5189/11
+        abstract fun flatten(): List<Rejection<*>>
 
-    class RootRejection(
-            private val _rejections: MutableList<Rejection<*>> = mutableListOf()
-    ) : Rejection<Root>(
-            Key.Root,
-            Root,
-            Source(Code("Root"), DelegateParam(_rejections))
-    ) {
-        fun isValid(): Boolean = _rejections.isEmpty()
-        fun addRejection(rejection: Rejection<*>) {
-            _rejections.add(rejection)
-        }
-        val rejections get() = _rejections
+        abstract fun merge(other: Rejection<*>): Rejection<*>
     }
 }

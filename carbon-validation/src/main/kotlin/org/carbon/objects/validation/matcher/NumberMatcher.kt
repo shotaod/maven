@@ -1,13 +1,14 @@
 package org.carbon.objects.validation.matcher
 
-import org.carbon.objects.validation.ShapeExpression
+import org.carbon.objects.validation.BeCounterExpression
+import org.carbon.objects.validation.Logical
 import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.source.BasicCode
 import org.carbon.objects.validation.evaluation.source.LengthCode
 import org.carbon.objects.validation.evaluation.source.NumberCode
 import org.carbon.objects.validation.evaluation.source.Param
 
-infix fun Number.eq(other: Number): Evaluation =
+infix fun Int.eq(other: Int): Evaluation =
         if (this == other) Evaluation.Acceptance
         else this.reject(
                 BasicCode.Equal,
@@ -15,27 +16,13 @@ infix fun Number.eq(other: Number): Evaluation =
                 "values \"$this\" and \"$other\" are not match"
         )
 
-infix fun Int.withIn(range: IntRange): Evaluation {
-    val min = range.first
-    val max = range.last
-    if (min > max)
-        throw IllegalArgumentException("min and max should be max > min")
-
-    return if (this in min..max) Evaluation.Acceptance
-    else this.reject(
-            LengthCode.Range,
-            Param(listOf(min, max)),
-            "number must be between $min and $max"
-    )
-}
-
 infix fun Int.min(min: Int): Evaluation {
     if (min < 0) throw IllegalArgumentException("min should be greater than 0")
     return if (this >= min) Evaluation.Acceptance
     else this.reject(
             LengthCode.Min,
             Param(listOf(min)),
-            "number must be less than $min"
+            "number must be greater than $min"
     )
 }
 
@@ -45,9 +32,24 @@ infix fun Int.max(max: Int): Evaluation {
     else this.reject(
             LengthCode.Max,
             Param(listOf(max)),
-            "number must be greater than $max"
+            "number must be less than $max"
     )
 }
+
+infix fun Int.withIn(range: IntRange): Evaluation {
+    val min = range.first
+    val max = range.last
+    if (min > max)
+        throw IllegalArgumentException("min and max should be max > min")
+
+    val evaluations = listOf(this.min(min), this.max(max))
+    @Suppress("UNCHECKED_CAST")
+    val rejections = evaluations.filter { it !is Evaluation.Acceptance } as List<Evaluation.Rejection<Int>>
+    return if (rejections.isEmpty()) Evaluation.Acceptance
+    else this.reject(*rejections.toTypedArray(), logical = Logical.AND)
+}
+
+val WithIn: (range: IntRange) -> BeCounterExpression<Int> = { { this.withIn(it) } }
 
 fun Int.isNatural(): Evaluation =
         if (this > 0) Evaluation.Acceptance
@@ -57,4 +59,4 @@ fun Int.isNatural(): Evaluation =
                 "number must be natural"
         )
 
-val Natural: ShapeExpression<Int> = { this.isNatural() }
+val Natural: BeCounterExpression<Int> = { this.isNatural() }

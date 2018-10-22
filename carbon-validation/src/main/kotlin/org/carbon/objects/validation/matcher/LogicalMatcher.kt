@@ -1,17 +1,17 @@
 package org.carbon.objects.validation.matcher
 
 import org.carbon.objects.validation.Logical
-import org.carbon.objects.validation.ShapeExpression
-import org.carbon.objects.validation.evaluation.CompositeRejection
+import org.carbon.objects.validation.BeCounterExpression
+import org.carbon.objects.validation.evaluation.rejection.CompositeRejection
 import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.Key
 
 /**
  * @author Soda 2018/10/07.
  */
-infix fun <T> T.be(expr: ShapeExpression<T>): Evaluation = expr(this)
+infix fun <T> T.be(expr: BeCounterExpression<T>): Evaluation = expr(this)
 
-infix fun <T> T?.mayBe(expr: ShapeExpression<T>): Evaluation = this?.let { expr(it) } ?: Evaluation.Acceptance
+infix fun <T> T?.mayBe(expr: BeCounterExpression<T>): Evaluation = this?.let { expr(it) } ?: Evaluation.Acceptance
 
 // -----------------------------------------------------
 //                                               Logical

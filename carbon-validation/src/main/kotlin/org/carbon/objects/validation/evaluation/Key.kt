@@ -19,9 +19,8 @@ data class Key(
         }
     }
 
-    infix fun withIndex(i: Int): Key = Key(this.name, i, this.child)
-
-    val qualifiedName: String get() = "$name${index?.let { "[$it]" } ?: ""}${child?.qualifiedName ?: ""}"
+    val qualifiedName: String
+        get() = "$name${index?.let { "[$it]" } ?: ""}${child?.let { ".${it.qualifiedName}" } ?: ""}"
 
     override fun describe(i: Int): String = qualifiedName
 }
@@ -36,4 +35,12 @@ class IndexModifier(private val i: Int) : KeyModifier {
 
 class NameModifier(private val name: String) : KeyModifier {
     override fun modify(base: Key): Key = Key(name, base.index, base.child)
+}
+
+class KeyReplacer(private val key: Key) : KeyModifier {
+    override fun modify(base: Key): Key = key
+}
+
+class PrefixModifier(private val prefix: String) : KeyModifier {
+    override fun modify(base: Key): Key = Key(prefix, null, child = base)
 }

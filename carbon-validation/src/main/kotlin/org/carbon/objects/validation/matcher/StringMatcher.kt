@@ -1,6 +1,6 @@
 package org.carbon.objects.validation.matcher
 
-import org.carbon.objects.validation.ShapeExpression
+import org.carbon.objects.validation.BeCounterExpression
 import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.source.BasicCode
 import org.carbon.objects.validation.evaluation.source.IncludeCode
@@ -76,7 +76,7 @@ infix fun String.matchReg(regStr: String): Evaluation {
     )
 }
 
-val Reg: (reg: String) -> ShapeExpression<String> = { { this.matchReg(it) } }
+val Reg: (reg: String) -> BeCounterExpression<String> = { { this.matchReg(it) } }
 
 // misc
 private val urlRegex = "^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]".toRegex()
@@ -98,8 +98,8 @@ fun String.isURL(): Evaluation =
         )
 
 // -----------------------------------------------------
-//                                               ShapeExpression
+//                                               BeCounterExpression
 //                                               -------
-val Email: ShapeExpression<String> = { this.isEmail() }
+val Email: BeCounterExpression<String> = { this.isEmail() }
 
-val URL: ShapeExpression<String> = { this.isURL() }
+val URL: BeCounterExpression<String> = { this.isURL() }
