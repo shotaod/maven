@@ -4,6 +4,7 @@ powered maven repos by github page hosting
 ----
 
 ## Carbon Validation
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/5e5d9add28df4ece843480845667a180)](https://app.codacy.com/app/shota.oda-github/maven?utm_source=github.com&utm_medium=referral&utm_content=ShotaOd/maven&utm_campaign=Badge_Grade_Dashboard)
 [![wercker status](https://app.wercker.com/status/ee54ade2bfebafa23d061afcccfa03de/s/master "wercker status")](https://app.wercker.com/project/byKey/ee54ade2bfebafa23d061afcccfa03de)
 
 [![Coverage Status](https://coveralls.io/repos/github/ShotaOd/maven/badge.svg)](https://coveralls.io/github/ShotaOd/maven)
