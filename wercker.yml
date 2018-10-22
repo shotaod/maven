@@ -17,6 +17,9 @@ build:
   # https://devcenter.wercker.com/development/steps/
   steps:
   - script:
+      name: clean
+      code: ./gradlew clean
+  - script:
       name: build
       code: ./gradlew carbon-validation:build
   - script:
