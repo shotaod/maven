@@ -11,12 +11,6 @@ data class Key(
     companion object {
         val Root = Key("Root")
         val Unresolved = Key("Undefined")
-        fun get(vararg keys: String, index: Int? = null): Key {
-            if (keys.isEmpty()) return Key("")
-            else if (keys.size == 1) return Key(keys.first(), index)
-            val key = keys.first()
-            return Key(key, child = get(*keys.slice(1..keys.lastIndex).toTypedArray()))
-        }
     }
 
     val qualifiedName: String
