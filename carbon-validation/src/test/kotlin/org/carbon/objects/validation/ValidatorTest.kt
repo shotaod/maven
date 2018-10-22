@@ -221,10 +221,13 @@ class ValidatorTest {
 
     @ParameterizedTest(name = "Validate Test[{index}] {0}")
     @MethodSource("data")
-    @Suppress("UNUSED_PARAMETER")
     fun validate(describe: String, input: Input, expected: Expected) {
         val result = input.tryValidate()
-        println(result.describe())
+        println("""
+        --------------------------------------------------
+        $describe
+        --------------------------------------------------
+        ${result.describe()}""".trimIndent())
         expected.assert(result)
     }
 }
