@@ -14,7 +14,6 @@ powered maven repos by github page hosting
 [![codebeat badge](https://codebeat.co/badges/a15d35d7-017b-4089-aa4a-32f125067f61)](https://codebeat.co/projects/github-com-shotaod-maven-master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/eaab7b6dab58aeac15f5/maintainability)](https://codeclimate.com/github/ShotaOd/maven/maintainability)
 
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=ShotaOd_maven&metric=alert_status)](https://sonarcloud.io/dashboard?id=ShotaOd_maven)
 [![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=ShotaOd_maven&metric=sqale_rating)](https://sonarcloud.io/component_measures?id=ShotaOd_maven&metric=Maintainability)
 [![Lines](https://sonarcloud.io/api/project_badges/measure?project=ShotaOd_maven&metric=ncloc)](https://sonarcloud.io/component_measures?id=ShotaOd_maven&metric=ncloc)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=ShotaOd_maven&metric=bugs)](https://sonarcloud.io/project/issues?id=ShotaOd_maven&resolved=false&types=BUG)
