@@ -17,7 +17,6 @@ infix fun Int.eq(other: Int): Evaluation =
         )
 
 infix fun Int.min(min: Int): Evaluation {
-    if (min < 0) throw IllegalArgumentException("min should be greater than 0")
     return if (this >= min) Evaluation.Acceptance
     else this.reject(
             LengthCode.Min,
@@ -27,7 +26,6 @@ infix fun Int.min(min: Int): Evaluation {
 }
 
 infix fun Int.max(max: Int): Evaluation {
-    if (max < 0) throw IllegalArgumentException("max should be greater than 0")
     return if (this <= max) Evaluation.Acceptance
     else this.reject(
             LengthCode.Max,
