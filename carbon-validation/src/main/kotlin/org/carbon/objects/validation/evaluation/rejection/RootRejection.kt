@@ -10,9 +10,10 @@ import org.carbon.objects.validation.evaluation.source.Source
 object Root
 
 open class RootRejection(
+        override val key: Key = Key.Root,
         private val _rejections: RejectionList = RejectionList()
 ) : Rejection<Root>(
-        Key.Root,
+        key,
         Root,
         Source(CompositionCode.And, DelegateParam(_rejections))
 ) {
@@ -23,13 +24,16 @@ open class RootRejection(
 
     operator fun get(key: String): Rejection<*>? = _rejections[key]
 
+    override fun newByKey(key: Key): Rejection<Root> = RootRejection(
+            key,
+            this._rejections
+    )
+
     override fun describe(i: Int): String = _rejections.all.entries
-            .joinToString(separator = "\n", prefix = "Rejection(\n${i.render()}", postfix = ")")
-            { "${i.indent().render()}- [${it.key}]: ${it.value.describe(i.indent().indent().indent())}" }
+            .joinToString(separator = "\n", prefix = "Rejection(\n", postfix = ")")
+            { "${i.render()}- [${it.key}]: ${it.value.describe(i.indent())}" }
 
     override fun flatten(): List<Rejection<*>> =
             if (key === Key.Root) _rejections
-            else _rejections.flatMap { (it modify PrefixModifier(key.name)).flatten() }
-
-    override fun merge(other: Rejection<*>): Rejection<*> = throw UnsupportedOperationException()
+            else _rejections.flatMap { (it modify PrefixModifier(key)).flatten() }
 }

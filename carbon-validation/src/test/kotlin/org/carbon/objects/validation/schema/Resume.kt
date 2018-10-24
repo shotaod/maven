@@ -7,6 +7,7 @@ import org.carbon.objects.validation.matcher.IncludeShape.AllOf
 import org.carbon.objects.validation.matcher.Natural
 import org.carbon.objects.validation.matcher.URL
 import org.carbon.objects.validation.matcher.be
+import org.carbon.objects.validation.matcher.has
 import org.carbon.objects.validation.matcher.include
 
 data class Resume(
@@ -23,6 +24,8 @@ object ResumeSchema : Validated<Resume> {
 
         resume.income should { it be Natural } otherwise "income".invalidate()
 
-        resume.text should { it include AllOf(*resume.certifications.toTypedArray()) } otherwise "text".invalidate()
+        resume.certifications shouldEach { it has "Certified" } otherwise "certifications".invalidate()
+
+        resume.text should { it include AllOf(resume.certifications) } otherwise "text".invalidate()
     }
 }

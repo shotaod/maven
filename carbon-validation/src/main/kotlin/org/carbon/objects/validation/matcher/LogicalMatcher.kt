@@ -30,7 +30,6 @@ private fun merge(matches: Array<out Evaluation>, logical: Logical): Evaluation.
             .filter { it !== Evaluation.Acceptance }
             as List<Evaluation.Rejection<Any>>
     return CompositeRejection(
-            Key.Unresolved,
             rejects.first().original,
             logical,
             rejects

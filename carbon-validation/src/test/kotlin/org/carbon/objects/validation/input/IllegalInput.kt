@@ -3,6 +3,7 @@ package org.carbon.objects.validation.input
 import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.schema.IllegalMax
 import org.carbon.objects.validation.schema.IllegalMin
+import org.carbon.objects.validation.schema.IllegalWithIn
 import org.carbon.objects.validation.validate
 
 class IllegalMinInput : Input {

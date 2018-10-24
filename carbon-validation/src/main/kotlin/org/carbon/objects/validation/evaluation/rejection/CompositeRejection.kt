@@ -9,20 +9,20 @@ import org.carbon.objects.validation.evaluation.source.Param
 import org.carbon.objects.validation.evaluation.source.Source
 
 data class CompositeRejection<T : Any>(
-        override var _key: Key,
         override val original: T,
-        private val logical: Logical,
+        private val _logical: Logical,
         private val _rejections: List<Rejection<*>>
 ) : Evaluation.Rejection<T>(
-        _key,
+        getKey(_rejections),
         original,
         Source(
-                getCode(logical),
+                getCode(_logical),
                 Param(_rejections),
-                getMessage(logical)
+                getMessage(_logical)
         )
 ) {
     private companion object {
+        fun getKey(rejections: List<Rejection<*>>) = rejections.first().key
         fun getCode(logical: Logical): CompositionCode =
                 if (logical == Logical.AND) CompositionCode.And
                 else CompositionCode.Or
@@ -32,11 +32,13 @@ data class CompositeRejection<T : Any>(
                 else "Not satisfied with any of conditions"
     }
 
-    override fun flatten(): List<Rejection<*>> =
-            if (_rejections.size == 1) listOf(_rejections.single() modify KeyReplacer(_key))
-            else listOf(this)
+    override fun newByKey(key: Key): Rejection<T> = CompositeRejection(
+            this.original,
+            this._logical,
+            this._rejections.map { it modify KeyReplacer(key) }
+    )
 
-    override fun merge(other: Rejection<*>): Rejection<*> {
-        TODO("function body is not implemented")
-    }
+    override fun flatten(): List<Rejection<*>> =
+            if (_rejections.size == 1) listOf(_rejections.single() modify KeyReplacer(key))
+            else listOf(this)
 }

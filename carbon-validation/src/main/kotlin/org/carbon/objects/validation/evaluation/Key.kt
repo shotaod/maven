@@ -2,7 +2,7 @@ package org.carbon.objects.validation.evaluation
 
 import org.carbon.objects.validation.Describe
 
-data class Key(
+open class Key(
         val name: String,
         val index: Int? = null,
         val child: Key? = null
@@ -10,13 +10,18 @@ data class Key(
 
     companion object {
         val Root = Key("Root")
-        val Unresolved = Key("Undefined")
+        val ShouldBeResolved = object : Key("ShouldBeResolved") {
+            override val qualifiedName: String
+                get() = throw IllegalStateException("this key should be resolved")
+        }
     }
 
-    val qualifiedName: String
+    open val qualifiedName: String
         get() = "$name${index?.let { "[$it]" } ?: ""}${child?.let { ".${it.qualifiedName}" } ?: ""}"
 
     override fun describe(i: Int): String = qualifiedName
+
+    operator fun plus(other: Key): Key = Key(name, index, child?.let { it + other } ?: other)
 }
 
 interface KeyModifier {
@@ -35,6 +40,6 @@ class KeyReplacer(private val key: Key) : KeyModifier {
     override fun modify(base: Key): Key = key
 }
 
-class PrefixModifier(private val prefix: String) : KeyModifier {
-    override fun modify(base: Key): Key = Key(prefix, null, child = base)
+class PrefixModifier(private val parent: Key) : KeyModifier {
+    override fun modify(base: Key): Key = parent + base
 }

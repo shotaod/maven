@@ -5,16 +5,19 @@ import org.carbon.objects.validation.evaluation.Key
 import org.carbon.objects.validation.evaluation.source.Source
 
 data class UnitRejection<T : Any>(
-        override var _key: Key,
+        override val key: Key,
         override val original: T,
         override val source: Source
 ) : Evaluation.Rejection<T>(
-        _key,
+        key,
         original,
         source
 ) {
+    override fun newByKey(key: Key): Rejection<T> = UnitRejection(
+            key,
+            this.original,
+            this.source
+    )
+
     override fun flatten(): List<Rejection<*>> = listOf(this)
-    override fun merge(other: Rejection<*>): Rejection<*> {
-        TODO("function body is not implemented")
-    }
 }

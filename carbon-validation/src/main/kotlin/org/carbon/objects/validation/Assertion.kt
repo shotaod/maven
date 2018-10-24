@@ -37,9 +37,8 @@ class Assertion {
 // ===================================================================================
 //                                                                     OtherwiseClause
 //                                                                          ==========
-sealed class OtherwiseClause(
-        open val rejection: RootRejection
-) {
+sealed class OtherwiseClause {
+    abstract val rejection: RootRejection
     infix fun otherwise(keyModifier: KeyModifier) = evaluate(keyModifier)
 
     abstract fun evaluate(keyModifier: KeyModifier)
@@ -55,7 +54,7 @@ sealed class OtherwiseClause(
     open class UnitOtherwiseClause(
             override val rejection: RootRejection,
             private val expression: Expression
-    ) : OtherwiseClause(rejection) {
+    ) : OtherwiseClause() {
         override fun evaluate(keyModifier: KeyModifier) {
             val evaluation = expression()
             if (evaluation is Evaluation.Rejection<*>)
@@ -66,7 +65,7 @@ sealed class OtherwiseClause(
     class IndexedOtherwiseClause(
             override val rejection: RootRejection,
             private val expressions: List<Expression>
-    ) : OtherwiseClause(rejection) {
+    ) : OtherwiseClause() {
         override fun evaluate(keyModifier: KeyModifier) {
             expressions
                     .asSequence()

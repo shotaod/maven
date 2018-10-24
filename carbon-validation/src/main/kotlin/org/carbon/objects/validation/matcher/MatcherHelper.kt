@@ -14,7 +14,7 @@ fun <T : Any> T.reject(
         params: Param<*>,
         defaultMessage: String? = ""
 ): Evaluation.Rejection<T> = UnitRejection(
-        Key.Unresolved,
+        Key.ShouldBeResolved,
         this,
         Source(code, params, defaultMessage)
 )
@@ -23,7 +23,6 @@ fun <T : Any> T.reject(
         vararg rejection: Evaluation.Rejection<T>,
         logical: Logical
 ): Evaluation.Rejection<T> = CompositeRejection(
-        Key.Unresolved,
         this,
         logical,
         rejection.toList()

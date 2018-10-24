@@ -42,9 +42,22 @@ infix fun String.has(string: String): Evaluation =
                 "Should contain $string"
         )
 
+infix fun String.length(length: Int): Evaluation =
+        if (this.length == length) Evaluation.Acceptance
+        else this.reject(
+                LengthCode.Equal,
+                Param(listOf(length)),
+                "Number of letters Should be $length"
+        )
+
+val Length: (length: Int) -> BeCounterExpression<String> = { { this.length(it) } }
+
 sealed class IncludeShape {
     open class AnyOf(vararg val text: String) : IncludeShape()
-    open class AllOf(vararg val text: String) : IncludeShape()
+    open class AllOf(vararg val text: String) : IncludeShape() {
+        constructor(texts: List<String>) : this(*texts.toTypedArray())
+    }
+
     class AnyOfChar(chars: String) : AnyOf(*chars.toCharArray().map(Char::toString).distinct().toTypedArray())
 }
 
@@ -91,6 +104,8 @@ fun String.isEmail(): Evaluation =
                 "illegal email format"
         )
 
+val Email: BeCounterExpression<String> = { this.isEmail() }
+
 fun String.isURL(): Evaluation =
         if (urlRegex.matches(this)) Evaluation.Acceptance
         else this.reject(
@@ -98,10 +113,5 @@ fun String.isURL(): Evaluation =
                 Param(emptyList<String>()),
                 "illegal URL format"
         )
-
-// -----------------------------------------------------
-//                                               BeCounterExpression
-//                                               -------
-val Email: BeCounterExpression<String> = { this.isEmail() }
 
 val URL: BeCounterExpression<String> = { this.isURL() }

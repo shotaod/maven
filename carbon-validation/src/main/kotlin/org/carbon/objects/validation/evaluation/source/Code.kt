@@ -7,10 +7,10 @@ import org.carbon.objects.validation.Describe
  */
 
 open class Code(
-        protected open val name: String,
+        private val name: String,
         protected open val child: Code? = null
-): Describe {
-    val canonicalName: String get() = "$name${child?.let { ".${it.name}" } ?: ""}"
+) : Describe {
+    private val canonicalName: String get() = "$name${child?.let { ".${it.name}" } ?: ""}"
     override fun describe(i: Int): String = canonicalName
 }
 
@@ -25,6 +25,7 @@ sealed class CompositionCode(override val child: Code) : Code("Composition", chi
 }
 
 sealed class LengthCode(override val child: Code) : Code("Length", child) {
+    object Equal : LengthCode(Code("Equal"))
     object Min : LengthCode(Code("Min"))
     object Max : LengthCode(Code("Max"))
 }
@@ -35,7 +36,7 @@ sealed class IncludeCode(override val child: Code) : Code("Include", child) {
 }
 
 abstract class StringCode(override val child: Code) : Code("String", child) {
-    object Regex: StringCode(Code("Regex"))
+    object Regex : StringCode(Code("Regex"))
     object Email : StringCode(Code("Email"))
     object URL : StringCode(Code("URL"))
     object Contain : StringCode(Code("Contain"))

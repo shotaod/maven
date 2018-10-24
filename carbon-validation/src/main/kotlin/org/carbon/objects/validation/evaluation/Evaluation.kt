@@ -1,7 +1,10 @@
 package org.carbon.objects.validation.evaluation
 
 import org.carbon.objects.validation.Describe
+import org.carbon.objects.validation.Logical
+import org.carbon.objects.validation.evaluation.rejection.CompositeRejection
 import org.carbon.objects.validation.evaluation.source.Source
+import org.carbon.objects.validation.matcher.reject
 
 sealed class Evaluation : Describe {
     object Acceptance : Evaluation() {
@@ -9,16 +12,28 @@ sealed class Evaluation : Describe {
     }
 
     abstract class Rejection<T : Any>(
-            protected open var _key: Key,
+            open val key: Key,
             open val original: T,
             open val source: Source
     ) : Evaluation() {
         infix fun modify(keyModifier: KeyModifier): Rejection<T> {
-            this._key = keyModifier.modify(key)
-            return this
+            val newKey = keyModifier.modify(key)
+            return newByKey(newKey)
         }
 
-        val key: Key get() = _key
+        protected abstract fun newByKey(key: Key): Rejection<T>
+
+        // todo [help] wanna make protected
+        // @see https://discuss.kotlinlang.org/t/cannot-access-protected-method-declared-in-super-class/5189/11
+        abstract fun flatten(): List<Rejection<*>>
+
+        fun merge(other: Rejection<*>): Rejection<*> =
+                @Suppress("UNCHECKED_CAST")
+                CompositeRejection(
+                        this.original,
+                        Logical.AND,
+                        listOf(other)
+                )
 
         override fun describe(i: Int): String = """
                 |${this::class.simpleName}(
@@ -27,11 +42,5 @@ sealed class Evaluation : Describe {
                 |${i.render()}source=${source.describe(i.indent())}
                 |${i.render()})
                 """.trimMargin()
-
-        // todo [help] wanna make protected
-        // @see https://discuss.kotlinlang.org/t/cannot-access-protected-method-declared-in-super-class/5189/11
-        abstract fun flatten(): List<Rejection<*>>
-
-        abstract fun merge(other: Rejection<*>): Rejection<*>
     }
 }

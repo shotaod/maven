@@ -16,6 +16,7 @@ import org.carbon.objects.validation.evaluation.source.LengthCode
 import org.carbon.objects.validation.evaluation.source.NumberCode
 import org.carbon.objects.validation.evaluation.source.StringCode
 import org.carbon.objects.validation.input.ClassRoomInput
+import org.carbon.objects.validation.input.FruitInput
 import org.carbon.objects.validation.input.IllegalMaxInput
 import org.carbon.objects.validation.input.IllegalMinInput
 import org.carbon.objects.validation.input.IllegalWithInInput
@@ -40,8 +41,8 @@ class ValidatorTest {
                 --------------------------------------------------
                 $describe
                 --------------------------------------------------
-                ${evaluation.describe()}""".trimIndent())
 
+                """.trimIndent() + evaluation.describe())
             _assertions.forEach { it(evaluation) }
         }
 
@@ -49,7 +50,6 @@ class ValidatorTest {
             _assertions += assertion
             return this
         }
-
 
         fun toBeObservance(): Expected = withAssertion { res ->
             res.shouldBeTypeOf<Evaluation.Acceptance>()
@@ -233,6 +233,14 @@ class ValidatorTest {
                                         "AWS Certified Solutions Architect"))
                                 .resumeText("I have over 1 year of experience developing Kotlin and Swift"),
                         Expected().toBeViolation().hasNotMentionedCertification()),
+                case("[violation] apple should be apple")(
+                        FruitInput().apple(),
+                        Expected().toBeObservance()
+                ),
+                case("[violation] banana must not be apple with merge test")(
+                        FruitInput().fakeBanana(),
+                        Expected().toBeViolation()
+                ),
                 case("[observance] nested validation success")(
                         ClassRoomInput()
                                 .person(PersonInput())
@@ -241,7 +249,7 @@ class ValidatorTest {
                         Expected().toBeObservance()),
                 case("[violation] nested data violation")(
                         ClassRoomInput()
-                                .person(PersonInput().name("too long name..."))
+                                .person(PersonInput().name("too long name...").certifications(listOf("NONE")))
                                 .person(PersonInput().password("password1").password2("hogehoge"))
                                 .person(PersonInput().emails("email@valid.com", "email@..invalid")),
                         Expected().toBeViolation()),
