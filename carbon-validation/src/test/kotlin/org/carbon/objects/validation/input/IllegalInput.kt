@@ -16,3 +16,9 @@ class IllegalMaxInput : Input {
 
     override fun tryValidate(): Evaluation = value().validate()
 }
+
+class IllegalWithInInput: Input {
+    override fun value(): IllegalWithIn = IllegalWithIn(123)
+
+    override fun tryValidate(): Evaluation = value().validate()
+}

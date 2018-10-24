@@ -18,6 +18,7 @@ import org.carbon.objects.validation.evaluation.source.StringCode
 import org.carbon.objects.validation.input.ClassRoomInput
 import org.carbon.objects.validation.input.IllegalMaxInput
 import org.carbon.objects.validation.input.IllegalMinInput
+import org.carbon.objects.validation.input.IllegalWithInInput
 import org.carbon.objects.validation.input.Input
 import org.carbon.objects.validation.input.PersonInput
 import org.junit.jupiter.params.ParameterizedTest
@@ -249,6 +250,9 @@ class ValidatorTest {
                         ThrowExpected().throws<IllegalArgumentException>()),
                 case("[illegal] schema definition is illegal max")(
                         IllegalMaxInput(),
+                        ThrowExpected().throws<IllegalArgumentException>()),
+                case("[illegal] schema definition is illegal within")(
+                        IllegalWithInInput(),
                         ThrowExpected().throws<IllegalArgumentException>())
         )
 
