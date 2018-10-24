@@ -5,6 +5,7 @@ import io.kotlintest.matchers.collections.shouldContainAll
 import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.should
 import io.kotlintest.shouldBe
+import io.kotlintest.shouldThrow
 import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.rejection.CompositeRejection
 import org.carbon.objects.validation.evaluation.rejection.RootRejection
@@ -15,10 +16,13 @@ import org.carbon.objects.validation.evaluation.source.LengthCode
 import org.carbon.objects.validation.evaluation.source.NumberCode
 import org.carbon.objects.validation.evaluation.source.StringCode
 import org.carbon.objects.validation.input.ClassRoomInput
+import org.carbon.objects.validation.input.IllegalMaxInput
+import org.carbon.objects.validation.input.IllegalMinInput
 import org.carbon.objects.validation.input.Input
 import org.carbon.objects.validation.input.PersonInput
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.reflect.KClass
 
 /**
  * @author Soda 2018/10/08.
@@ -26,10 +30,19 @@ import org.junit.jupiter.params.provider.MethodSource
 typealias Assertion = (Evaluation) -> Unit
 
 class ValidatorTest {
-    class Expected {
+    open class Expected {
         private var _assertions: List<Assertion> = emptyList()
 
-        fun assert(evaluation: Evaluation) = _assertions.forEach { it(evaluation) }
+        open fun assert(describe: String, evalExp: () -> Evaluation) {
+            val evaluation = evalExp()
+            println("""
+                --------------------------------------------------
+                $describe
+                --------------------------------------------------
+                ${evaluation.describe()}""".trimIndent())
+
+            _assertions.forEach { it(evaluation) }
+        }
 
         private fun withAssertion(assertion: Assertion): Expected {
             _assertions += assertion
@@ -150,6 +163,27 @@ class ValidatorTest {
         }
     }
 
+    class ThrowExpected : Expected() {
+        override fun assert(describe: String, evalExp: () -> Evaluation) {
+            println("""
+                --------------------------------------------------
+                $describe
+                --------------------------------------------------
+                throw -> ${type.simpleName}
+            """.trimIndent())
+            assertThrow(evalExp)
+        }
+
+        var assertThrow: (eval: () -> Evaluation) -> Unit = {}
+        var type: KClass<*> = Exception::class
+
+        inline fun <reified T : Throwable> throws(): Expected {
+            type = T::class
+            assertThrow = { it -> shouldThrow<T>(it) }
+            return this
+        }
+    }
+
     companion object {
         @Suppress("unused")
         @JvmStatic
@@ -209,7 +243,13 @@ class ValidatorTest {
                                 .person(PersonInput().name("too long name..."))
                                 .person(PersonInput().password("password1").password2("hogehoge"))
                                 .person(PersonInput().emails("email@valid.com", "email@..invalid")),
-                        Expected().toBeViolation())
+                        Expected().toBeViolation()),
+                case("[illegal] schema definition is illegal min")(
+                        IllegalMinInput(),
+                        ThrowExpected().throws<IllegalArgumentException>()),
+                case("[illegal] schema definition is illegal max")(
+                        IllegalMaxInput(),
+                        ThrowExpected().throws<IllegalArgumentException>())
         )
 
         private val case: (describe: String) -> (input: Input, expected: Expected) -> Array<Any> = { describe ->
@@ -222,12 +262,6 @@ class ValidatorTest {
     @ParameterizedTest(name = "Validate Test[{index}] {0}")
     @MethodSource("data")
     fun validate(describe: String, input: Input, expected: Expected) {
-        val result = input.tryValidate()
-        println("""
-        --------------------------------------------------
-        $describe
-        --------------------------------------------------
-        ${result.describe()}""".trimIndent())
-        expected.assert(result)
+        expected.assert(describe, input::tryValidate)
     }
 }

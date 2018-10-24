@@ -17,7 +17,8 @@ infix fun String.eq(other: String): Evaluation =
         )
 
 infix fun String.min(min: Int): Evaluation =
-        if (this.length > min) Evaluation.Acceptance
+        if (min < 0) throw IllegalArgumentException("Min (value=$min) should be greater than or equal 0.")
+        else if (this.length > min) Evaluation.Acceptance
         else this.reject(
                 LengthCode.Min,
                 Param(listOf(min)),
@@ -25,7 +26,8 @@ infix fun String.min(min: Int): Evaluation =
         )
 
 infix fun String.max(max: Int): Evaluation =
-        if (this.length < max) Evaluation.Acceptance
+        if (max < 0) throw IllegalArgumentException("Max (value=$max) should be greater than or equal 0.")
+        else if (this.length < max) Evaluation.Acceptance
         else this.reject(
                 LengthCode.Max,
                 Param(listOf(max)),
