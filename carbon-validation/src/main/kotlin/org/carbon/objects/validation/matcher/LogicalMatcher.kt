@@ -1,10 +1,9 @@
 package org.carbon.objects.validation.matcher
 
-import org.carbon.objects.validation.Logical
 import org.carbon.objects.validation.BeCounterExpression
-import org.carbon.objects.validation.evaluation.rejection.CompositeRejection
+import org.carbon.objects.validation.Logical
 import org.carbon.objects.validation.evaluation.Evaluation
-import org.carbon.objects.validation.evaluation.Key
+import org.carbon.objects.validation.evaluation.rejection.CompositeRejection
 
 /**
  * @author Soda 2018/10/07.

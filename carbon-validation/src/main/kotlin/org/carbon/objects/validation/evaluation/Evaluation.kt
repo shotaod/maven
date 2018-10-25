@@ -4,7 +4,6 @@ import org.carbon.objects.validation.Describe
 import org.carbon.objects.validation.Logical
 import org.carbon.objects.validation.evaluation.rejection.CompositeRejection
 import org.carbon.objects.validation.evaluation.source.Source
-import org.carbon.objects.validation.matcher.reject
 
 sealed class Evaluation : Describe {
     object Acceptance : Evaluation() {
