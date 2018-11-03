@@ -30,7 +30,7 @@ repository {
     }
 }
 dependency {
-    implementation 'org.carbon.libs:carbon-validation:$ver.carbon.validation' 
+    implementation "org.carbon.libs:carbon-validation:$ver.carbon.validation" 
 }
 ```
 
