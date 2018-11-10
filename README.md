@@ -34,7 +34,7 @@ dependency {
 }
 ```
 
-#### Ma\ven
+#### Maven
 pom.xml
 ```xml
 <project>
