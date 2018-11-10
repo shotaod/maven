@@ -3,14 +3,15 @@
   <groupId>org.carbon.libs</groupId>
   <artifactId>carbon-validation</artifactId>
   <versioning>
-    <release>0.3.2</release>
+    <release>0.3.3</release>
     <versions>
       <version>0.1</version>
       <version>0.2</version>
       <version>0.3</version>
       <version>0.3.1</version>
       <version>0.3.2</version>
+      <version>0.3.3</version>
     </versions>
-    <lastUpdated>20181110045808</lastUpdated>
+    <lastUpdated>20181110090307</lastUpdated>
   </versioning>
 </metadata>
