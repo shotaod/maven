@@ -6,13 +6,13 @@ import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.source.BasicCode
 import org.carbon.objects.validation.evaluation.source.LengthCode
 import org.carbon.objects.validation.evaluation.source.NumberCode
-import org.carbon.objects.validation.evaluation.source.Param
+import org.carbon.objects.validation.evaluation.source.ParamList
 
 infix fun Int.eq(other: Int): Evaluation =
         if (this == other) Evaluation.Acceptance
         else this.reject(
                 BasicCode.Equal,
-                Param(listOf(this, other)),
+                ParamList(listOf(this, other)),
                 "values \"$this\" and \"$other\" are not match"
         )
 
@@ -20,7 +20,7 @@ infix fun Int.min(min: Int): Evaluation {
     return if (this >= min) Evaluation.Acceptance
     else this.reject(
             LengthCode.Min,
-            Param(listOf(min)),
+            ParamList(listOf(min)),
             "number must be greater than $min"
     )
 }
@@ -29,7 +29,7 @@ infix fun Int.max(max: Int): Evaluation {
     return if (this <= max) Evaluation.Acceptance
     else this.reject(
             LengthCode.Max,
-            Param(listOf(max)),
+            ParamList(listOf(max)),
             "number must be less than $max"
     )
 }
@@ -53,7 +53,7 @@ fun Int.isNatural(): Evaluation =
         if (this > 0) Evaluation.Acceptance
         else this.reject(
                 NumberCode.Natural,
-                Param(emptyList<Any>()),
+                ParamList(emptyList<Any>()),
                 "number must be natural"
         )
 

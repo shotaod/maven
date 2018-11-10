@@ -5,7 +5,7 @@ import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.Key
 import org.carbon.objects.validation.evaluation.KeyReplacer
 import org.carbon.objects.validation.evaluation.source.CompositionCode
-import org.carbon.objects.validation.evaluation.source.Param
+import org.carbon.objects.validation.evaluation.source.ParamList
 import org.carbon.objects.validation.evaluation.source.Source
 
 data class CompositeRejection<T : Any>(
@@ -17,7 +17,7 @@ data class CompositeRejection<T : Any>(
         original,
         Source(
                 getCode(_logical),
-                Param(_rejections),
+                ParamList(_rejections),
                 getMessage(_logical)
         )
 ) {

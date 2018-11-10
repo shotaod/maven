@@ -6,12 +6,12 @@ import org.carbon.objects.validation.evaluation.Key
 import org.carbon.objects.validation.evaluation.rejection.CompositeRejection
 import org.carbon.objects.validation.evaluation.rejection.UnitRejection
 import org.carbon.objects.validation.evaluation.source.Code
-import org.carbon.objects.validation.evaluation.source.Param
+import org.carbon.objects.validation.evaluation.source.ParamList
 import org.carbon.objects.validation.evaluation.source.Source
 
 fun <T : Any> T.reject(
         code: Code,
-        params: Param<*>,
+        params: ParamList<*>,
         defaultMessage: String? = ""
 ): Evaluation.Rejection<T> = UnitRejection(
         Key.ShouldBeResolved,

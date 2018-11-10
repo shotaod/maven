@@ -5,14 +5,14 @@ import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.source.BasicCode
 import org.carbon.objects.validation.evaluation.source.IncludeCode
 import org.carbon.objects.validation.evaluation.source.LengthCode
-import org.carbon.objects.validation.evaluation.source.Param
+import org.carbon.objects.validation.evaluation.source.ParamList
 import org.carbon.objects.validation.evaluation.source.StringCode
 
 infix fun String.eq(other: String): Evaluation =
         if (this == other) Evaluation.Acceptance
         else this.reject(
                 BasicCode.Equal,
-                Param(listOf(this, other)),
+                ParamList(listOf(this, other)),
                 "two values are not match"
         )
 
@@ -21,7 +21,7 @@ infix fun String.min(min: Int): Evaluation =
         else if (this.length > min) Evaluation.Acceptance
         else this.reject(
                 LengthCode.Min,
-                Param(listOf(min)),
+                ParamList(listOf(min)),
                 "length should be greater or equal $min"
         )
 
@@ -30,7 +30,7 @@ infix fun String.max(max: Int): Evaluation =
         else if (this.length < max) Evaluation.Acceptance
         else this.reject(
                 LengthCode.Max,
-                Param(listOf(max)),
+                ParamList(listOf(max)),
                 "length should be less or equal $max"
         )
 
@@ -38,7 +38,7 @@ infix fun String.has(string: String): Evaluation =
         if (string in this) Evaluation.Acceptance
         else this.reject(
                 StringCode.Contain,
-                Param(listOf(string)),
+                ParamList(listOf(string)),
                 "Should contain $string"
         )
 
@@ -46,7 +46,7 @@ infix fun String.length(length: Int): Evaluation =
         if (this.length == length) Evaluation.Acceptance
         else this.reject(
                 LengthCode.Equal,
-                Param(listOf(length)),
+                ParamList(listOf(length)),
                 "Number of letters Should be $length"
         )
 
@@ -66,7 +66,7 @@ infix fun String.include(shape: IncludeShape): Evaluation = when (shape) {
         if (shape.text.any { it in this }) Evaluation.Acceptance
         else this.reject(
                 IncludeCode.Any,
-                Param(shape.text.toList()),
+                ParamList(shape.text.toList()),
                 "Should include one of [${shape.text.joinToString(", ")}]"
         )
     }
@@ -74,7 +74,7 @@ infix fun String.include(shape: IncludeShape): Evaluation = when (shape) {
         if (shape.text.all { it in this }) Evaluation.Acceptance
         else this.reject(
                 IncludeCode.All,
-                Param(shape.text.toList()),
+                ParamList(shape.text.toList()),
                 "Should include all of [${shape.text.joinToString(", ")}]"
         )
     }
@@ -86,7 +86,7 @@ infix fun String.matchReg(regStr: String): Evaluation {
     return if (regex.matches(this)) Evaluation.Acceptance
     else this.reject(
             StringCode.Regex,
-            Param(listOf(regex)),
+            ParamList(listOf(regex)),
             "Should match $regStr"
     )
 }
@@ -100,7 +100,7 @@ fun String.isEmail(): Evaluation =
         if (emailRegex.matches(this)) Evaluation.Acceptance
         else this.reject(
                 StringCode.Email,
-                Param(emptyList<String>()),
+                ParamList(emptyList<String>()),
                 "illegal email format"
         )
 
@@ -110,7 +110,7 @@ fun String.isURL(): Evaluation =
         if (urlRegex.matches(this)) Evaluation.Acceptance
         else this.reject(
                 StringCode.URL,
-                Param(emptyList<String>()),
+                ParamList(emptyList<String>()),
                 "illegal URL format"
         )
 

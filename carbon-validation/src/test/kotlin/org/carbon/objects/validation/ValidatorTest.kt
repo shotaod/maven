@@ -62,14 +62,14 @@ class ValidatorTest {
         fun hasNameViolation(): Expected = withAssertion { res ->
             val rejection = (res as RootRejection)["name"]
             checkNotNull(rejection) { " key name should be exist" }
-            rejection.source.code shouldBe LengthCode.Max
+            rejection.source.code.canonicalName shouldBe LengthCode.Max.canonicalName
             rejection.source.params[0] shouldBe 10
         }
 
         fun hasEqualViolation(param1: String, param2: String): Expected = withAssertion { res ->
             val rejection = (res as RootRejection)["password"]
             checkNotNull(rejection) { "key password should be exist" }
-            rejection.source.code shouldBe BasicCode.Equal
+            rejection.source.code.canonicalName shouldBe BasicCode.Equal.canonicalName
             rejection.source.params[0] shouldBe param1
             rejection.source.params[1] shouldBe param2
         }
@@ -77,14 +77,14 @@ class ValidatorTest {
         fun hasEmailViolation(at: Int): Expected = withAssertion { res ->
             val rejection = (res as RootRejection)["emails[$at]"]
             checkNotNull(rejection) { "key emails[$at] should be exist" }
-            rejection.source.code shouldBe StringCode.Email
+            rejection.source.code.canonicalName shouldBe StringCode.Email.canonicalName
             rejection.source.params should { it.isEmpty().shouldBeTrue() }
         }
 
         fun hasPasswordTooShortViolation(): Expected = withAssertion { res ->
             val rejection = (res as RootRejection)["password"]
             checkNotNull(rejection) { "key password should be exist" }
-            rejection.source.code shouldBe LengthCode.Min
+            rejection.source.code.canonicalName shouldBe LengthCode.Min.canonicalName
             rejection.source.params[0] shouldBe 8
         }
 
@@ -98,20 +98,20 @@ class ValidatorTest {
             val orNode1 = orNodes[0]
             orNode1 should { (it is UnitRejection<*>).shouldBeTrue() }
             val orNodeSource1 = (orNode1 as UnitRejection<*>).source
-            orNodeSource1.code shouldBe IncludeCode.Any
+            orNodeSource1.code.canonicalName shouldBe IncludeCode.Any.canonicalName
             orNodeSource1.params.all().shouldContainAll("~!@#$%^&*()".toCharArray().map(Char::toString))
 
             val orNode2 = orNodes[1]
             orNode2 should { (it is UnitRejection<*>).shouldBeTrue() }
             val orNodeSource2 = (orNode2 as UnitRejection<*>).source
-            orNodeSource2.code shouldBe IncludeCode.Any
+            orNodeSource2.code.canonicalName shouldBe IncludeCode.Any.canonicalName
             orNodeSource2.params.all().shouldContainAll("1234567890".toCharArray().map(Char::toString))
         }
 
         fun hasAgeNoWayViolation(): Expected = withAssertion { res ->
             val rejection = (res as RootRejection)["age"]
             checkNotNull(rejection) { "key age should be exist" }
-            rejection.source.code shouldBe LengthCode.Max
+            rejection.source.code.canonicalName shouldBe LengthCode.Max.canonicalName
             rejection.source.params[0] shouldBe 150
         }
 
@@ -119,38 +119,38 @@ class ValidatorTest {
         fun hasIllegalURLViolation(): Expected = withAssertion { res ->
             val rejection = (res as RootRejection)["resume.portfolioUrl"]
             checkNotNull(rejection) { "key resume.portfolioUrl should be exist" }
-            rejection.source.code shouldBe StringCode.URL
+            rejection.source.code.canonicalName shouldBe StringCode.URL.canonicalName
         }
 
         fun hasIllegalIncomeViolation(): Expected = withAssertion { res ->
             val rejection = (res as RootRejection)["resume.income"]
             checkNotNull(rejection) { "resume.income should be exist" }
             rejection.key.qualifiedName shouldBe "resume.income"
-            rejection.source.code shouldBe NumberCode.Natural
+            rejection.source.code.canonicalName shouldBe NumberCode.Natural.canonicalName
         }
 
         fun hasNotMentionedCertification(): Expected = withAssertion { res ->
             val rejection = (res as RootRejection)["resume.text"]
             checkNotNull(rejection) { "resume.text should be exist" }
-            rejection.source.code shouldBe IncludeCode.All
+            rejection.source.code.canonicalName shouldBe IncludeCode.All.canonicalName
         }
 
         fun hasIllegalPhoneNumber(): Expected = withAssertion { res ->
             val rejection = (res as RootRejection)["phoneNumber"]
             checkNotNull(rejection) { "phoneNumber should be exist" }
-            rejection.source.code shouldBe StringCode.Regex
+            rejection.source.code.canonicalName shouldBe StringCode.Regex.canonicalName
         }
 
         fun hasCheerUpPersonToDemandMonthlyIncomeViolation(): Expected = withAssertion { res ->
             val rejection = (res as RootRejection)["desiredCondition.monthlyIncome"]
             checkNotNull(rejection) { "desiredCondition.monthlyIncome should be exist" }
-            rejection.source.code shouldBe LengthCode.Min
+            rejection.source.code.canonicalName shouldBe LengthCode.Min.canonicalName
         }
 
         fun hasOnePasswordRequirementsViolation(): Expected = withAssertion { res ->
             val rejection = (res as RootRejection)["onetimePw"]
             checkNotNull(rejection) { "onetimePw should be exist" }
-            rejection.source.code shouldBe LengthCode.Max
+            rejection.source.code.canonicalName shouldBe LengthCode.Max.canonicalName
             rejection.source.params[0] shouldBe 9999
         }
     }
@@ -244,13 +244,13 @@ class ValidatorTest {
                                 .person(PersonInput().password("password1").password2("hogehoge"))
                                 .person(PersonInput().emails("email@valid.com", "email@..invalid")),
                         Expected().toBeViolation()),
-                case("[illegal] schema definition is illegal min")(
+                case("[illegal] schema definition use illegal min")(
                         IllegalMinInput(),
                         ThrowExpected().throws<IllegalArgumentException>()),
-                case("[illegal] schema definition is illegal max")(
+                case("[illegal] schema definition use illegal max")(
                         IllegalMaxInput(),
                         ThrowExpected().throws<IllegalArgumentException>()),
-                case("[illegal] schema definition is illegal within")(
+                case("[illegal] schema definition use illegal within")(
                         IllegalWithInInput(),
                         ThrowExpected().throws<IllegalArgumentException>())
         )

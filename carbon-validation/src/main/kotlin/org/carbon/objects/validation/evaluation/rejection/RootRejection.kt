@@ -4,7 +4,7 @@ import org.carbon.objects.validation.evaluation.Evaluation.Rejection
 import org.carbon.objects.validation.evaluation.Key
 import org.carbon.objects.validation.evaluation.PrefixModifier
 import org.carbon.objects.validation.evaluation.source.CompositionCode
-import org.carbon.objects.validation.evaluation.source.DelegateParam
+import org.carbon.objects.validation.evaluation.source.ParamList
 import org.carbon.objects.validation.evaluation.source.Source
 
 object Root
@@ -15,7 +15,7 @@ open class RootRejection(
 ) : Rejection<Root>(
         key,
         Root,
-        Source(CompositionCode.And, DelegateParam(_rejections))
+        Source(CompositionCode.And, ParamList(_rejections))
 ) {
     fun isValid(): Boolean = _rejections.isEmpty()
     fun addRejection(rejection: Rejection<*>) {

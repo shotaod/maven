@@ -10,7 +10,7 @@ open class Code(
         private val name: String,
         protected open val child: Code? = null
 ) : Describe {
-    private val canonicalName: String get() = "$name${child?.let { ".${it.name}" } ?: ""}"
+    val canonicalName: String get() = "$name${child?.let { ".${it.name}" } ?: ""}"
     override fun describe(i: Int): String = canonicalName
 }
 

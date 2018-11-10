@@ -4,7 +4,7 @@ import org.carbon.objects.validation.Describe
 
 open class Source(
         open val code: Code,
-        open val params: Param<*>,
+        open val params: ParamList<*>,
         open val defaultMessage: String? = ""
 ) : Describe {
     override fun describe(i: Int): String = """(
