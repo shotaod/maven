@@ -24,16 +24,18 @@ open class RootRejection(
 
     operator fun get(key: String): Rejection<*>? = _rejections[key]
 
+    fun entries() = _rejections.entries
+
     override fun newByKey(key: Key): Rejection<Root> = RootRejection(
             key,
             this._rejections
     )
 
-    override fun describe(i: Int): String = _rejections.all.entries
+    override fun describe(i: Int): String = _rejections.entries
             .joinToString(separator = "\n", prefix = "Rejection(\n", postfix = ")")
             { "${i.render()}- [${it.key}]: ${it.value.describe(i.indent())}" }
 
     override fun flatten(): List<Rejection<*>> =
-            if (key === Key.Root) _rejections
+            if (key === Key.Root) throw IllegalStateException("this method[flatten] is for internal use. Not call directly")
             else _rejections.flatMap { (it modify PrefixModifier(key)).flatten() }
 }

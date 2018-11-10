@@ -31,15 +31,15 @@ sealed class Evaluation : Describe {
                 CompositeRejection(
                         this.original,
                         Logical.AND,
-                        listOf(other)
+                        listOf(this, other)
                 )
 
         override fun describe(i: Int): String = """
-                |${this::class.simpleName}(
+                |(class: ${this::class.simpleName}) {
                 |${i.render()}key=${key.describe(i.indent())},
                 |${i.render()}original=$original,
                 |${i.render()}source=${source.describe(i.indent())}
-                |${i.render()})
+                |${i.render()}}
                 """.trimMargin()
     }
 }

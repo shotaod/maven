@@ -22,6 +22,15 @@ open class Key(
     override fun describe(i: Int): String = qualifiedName
 
     operator fun plus(other: Key): Key = Key(name, index, child?.let { it + other } ?: other)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Key) return false
+
+        return this.qualifiedName == other.qualifiedName
+    }
+
+    override fun hashCode(): Int = this.qualifiedName.hashCode()
 }
 
 interface KeyModifier {

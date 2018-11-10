@@ -4,7 +4,7 @@ import org.carbon.objects.validation.evaluation.Evaluation
 
 class RejectionList : MutableList<Evaluation.Rejection<*>> by ArrayList() {
     private var _cacheFlattenKeyRejections: Map<String, Evaluation.Rejection<*>>? = null
-    val all: Map<String, Evaluation.Rejection<*>>
+    private val keyedMap: Map<String, Evaluation.Rejection<*>>
         get() {
             _cacheFlattenKeyRejections = _cacheFlattenKeyRejections ?: projectRejections()
             return _cacheFlattenKeyRejections!!
@@ -18,5 +18,6 @@ class RejectionList : MutableList<Evaluation.Rejection<*>> by ArrayList() {
             .toList()
             .toMap()
 
-    operator fun get(key: String): Evaluation.Rejection<*>? = all[key]
+    val entries get() = keyedMap.entries
+    operator fun get(keyName: String): Evaluation.Rejection<*>? = keyedMap[keyName]
 }

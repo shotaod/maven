@@ -11,6 +11,7 @@ import org.carbon.objects.validation.evaluation.rejection.CompositeRejection
 import org.carbon.objects.validation.evaluation.rejection.RootRejection
 import org.carbon.objects.validation.evaluation.rejection.UnitRejection
 import org.carbon.objects.validation.evaluation.source.BasicCode
+import org.carbon.objects.validation.evaluation.source.CompositionCode
 import org.carbon.objects.validation.evaluation.source.IncludeCode
 import org.carbon.objects.validation.evaluation.source.LengthCode
 import org.carbon.objects.validation.evaluation.source.NumberCode
@@ -22,8 +23,13 @@ import org.carbon.objects.validation.input.IllegalMinInput
 import org.carbon.objects.validation.input.IllegalWithInInput
 import org.carbon.objects.validation.input.Input
 import org.carbon.objects.validation.input.PersonInput
+import org.carbon.objects.validation.schema.Apple
+import org.carbon.objects.validation.schema.DesiredCondition
+import org.carbon.objects.validation.schema.Resume
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import java.lang.IllegalStateException
 import kotlin.reflect.KClass
 
 /**
@@ -153,6 +159,15 @@ class ValidatorTest {
             rejection.source.code.canonicalName shouldBe LengthCode.Max.canonicalName
             rejection.source.params[0] shouldBe 9999
         }
+
+        fun hasMergedBananaViolation(): Expected = withAssertion { res ->
+            val rejection = (res as RootRejection)["name"]
+            checkNotNull(rejection) { "name should be exist" }
+            rejection.source.code.canonicalName shouldBe CompositionCode.And.canonicalName
+            rejection.source.params.size shouldBe 2
+            rejection.source.params[0].shouldBeTypeOf<UnitRejection<Any>>()
+            rejection.source.params[1].shouldBeTypeOf<UnitRejection<Any>>()
+        }
     }
 
     class ThrowExpected : Expected() {
@@ -231,6 +246,7 @@ class ValidatorTest {
                 case("[violation] banana must not be apple with merge test")(
                         FruitInput().fakeBanana(),
                         Expected().toBeViolation()
+                                .hasMergedBananaViolation()
                 ),
                 case("[observance] nested validation success")(
                         ClassRoomInput()
@@ -266,5 +282,25 @@ class ValidatorTest {
     @MethodSource("data")
     fun validate(describe: String, input: Input, expected: Expected) {
         expected.assert(describe, input::tryValidate)
+    }
+
+    @Test
+    internal fun flattenShouldBeForInternalUsage() {
+        val cheapSalary = 1000
+        val validation = DesiredCondition(cheapSalary).validate()
+        validation.shouldBeTypeOf<RootRejection>()
+        shouldThrow<IllegalStateException> {
+            (validation as RootRejection).flatten()
+        }
+    }
+
+    @Test
+    internal fun shouldHaveEntriesAPI() {
+        val validation = PersonInput().name("s").password("illegal").tryValidate()
+        validation.shouldBeTypeOf<RootRejection>()
+        val rootRejection = validation as RootRejection
+        println(rootRejection.describe())
+        val entries = rootRejection.entries()
+        entries.size shouldBe 2
     }
 }
