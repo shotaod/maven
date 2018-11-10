@@ -17,6 +17,7 @@ data class Apple(
 
 object VerboseSchema : Validated<Apple> {
     override val def: Definition<Apple> = { fruit ->
+        // usually this style...
         //        fruit.name should {
         //            and(
         //                    it has "apple",
