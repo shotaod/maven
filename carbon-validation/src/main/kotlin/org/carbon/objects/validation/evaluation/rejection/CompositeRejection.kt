@@ -1,9 +1,8 @@
 package org.carbon.objects.validation.evaluation.rejection
 
 import org.carbon.objects.validation.Logical
-import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.Key
-import org.carbon.objects.validation.evaluation.KeyReplacer
+import org.carbon.objects.validation.evaluation.KeyModifier
 import org.carbon.objects.validation.evaluation.source.CompositionCode
 import org.carbon.objects.validation.evaluation.source.ParamList
 import org.carbon.objects.validation.evaluation.source.Source
@@ -11,9 +10,10 @@ import org.carbon.objects.validation.evaluation.source.Source
 data class CompositeRejection<T : Any>(
         override val original: T,
         private val _logical: Logical,
-        private val _rejections: List<Rejection<*>>
-) : Evaluation.Rejection<T>(
-        getKey(_rejections),
+        private val _rejections: List<Rejection<*>>,
+        override val key: Key = Key.Undefined
+) : RejectionBase<T>(
+        key,
         original,
         Source(
                 getCode(_logical),
@@ -22,7 +22,6 @@ data class CompositeRejection<T : Any>(
         )
 ) {
     private companion object {
-        fun getKey(rejections: List<Rejection<*>>) = rejections.first().key
         fun getCode(logical: Logical): CompositionCode =
                 if (logical == Logical.AND) CompositionCode.And
                 else CompositionCode.Or
@@ -32,13 +31,19 @@ data class CompositeRejection<T : Any>(
                 else "Not satisfied with any of conditions"
     }
 
-    override fun newByKey(key: Key): Rejection<T> = CompositeRejection(
+    override fun flattenWithKey(parentModifier: KeyModifier): List<Rejection<*>> =
+            if (_rejections.size == 1) _rejections.single().flattenWithKey(parentModifier)
+            else listOf(CompositeRejection(
+                    original,
+                    _logical,
+                    _rejections.flatMap { it.flattenWithKey(parentModifier) },
+                    parentModifier.modify(key)
+            ))
+
+    override fun withNewKey(key: Key): Rejection<T> = CompositeRejection(
             this.original,
             this._logical,
-            this._rejections.map { it modify KeyReplacer(key) }
+            this._rejections,
+            key
     )
-
-    override fun flatten(): List<Rejection<*>> =
-            if (_rejections.size == 1) listOf(_rejections.single() modify KeyReplacer(key))
-            else listOf(this)
 }
