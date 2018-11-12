@@ -28,6 +28,7 @@ sealed class LengthCode(override val child: Code) : Code("Length", child) {
     object Equal : LengthCode(Code("Equal"))
     object Min : LengthCode(Code("Min"))
     object Max : LengthCode(Code("Max"))
+    object Range: LengthCode(Code("Range"))
 }
 
 sealed class IncludeCode(override val child: Code) : Code("Include", child) {
