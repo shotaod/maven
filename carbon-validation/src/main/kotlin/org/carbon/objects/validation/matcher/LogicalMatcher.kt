@@ -10,27 +10,28 @@ import org.carbon.objects.validation.evaluation.rejection.CompositeRejection
  */
 infix fun <T> T.be(expr: BeCounterExpression<T>): Evaluation = expr(this)
 
-infix fun <T> T?.mayBe(expr: BeCounterExpression<T>): Evaluation = this?.let { expr(it) } ?: Evaluation.Acceptance
+infix fun <T> T?.mayBe(expr: BeCounterExpression<T>): Evaluation = this?.let { expr(it) } ?: Evaluation.Accepted
 
 // -----------------------------------------------------
 //                                               Logical
 //                                               -------
 fun or(vararg matches: Evaluation): Evaluation =
-        if (Evaluation.Acceptance in matches) Evaluation.Acceptance
+        if (Evaluation.Accepted in matches) Evaluation.Accepted
         else merge(matches, Logical.OR)
 
 fun and(vararg matches: Evaluation): Evaluation =
-        if (matches.all { it === Evaluation.Acceptance }) Evaluation.Acceptance
+        if (matches.all { it === Evaluation.Accepted }) Evaluation.Accepted
         else merge(matches, Logical.AND)
 
-private fun merge(matches: Array<out Evaluation>, logical: Logical): Evaluation.Rejection<Any> {
+private fun merge(matches: Array<out Evaluation>, logical: Logical): Evaluation.Rejected {
     @Suppress("UNCHECKED_CAST")
     val rejects = matches
-            .filter { it !== Evaluation.Acceptance }
-            as List<Evaluation.Rejection<Any>>
-    return CompositeRejection(
-            rejects.first().original,
-            logical,
-            rejects
-    )
+            .filter { it !== Evaluation.Accepted }
+            as List<Evaluation.Rejected>
+    return Evaluation.Rejected.from(
+            CompositeRejection(
+                    rejects.first().original,
+                    logical,
+                    rejects
+            ))
 }
