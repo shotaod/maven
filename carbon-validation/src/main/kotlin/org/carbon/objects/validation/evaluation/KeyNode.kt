@@ -16,12 +16,10 @@ class Key(private val keys: List<KeyNode>) : List<KeyNode> by keys, Describe {
 class KeyNode(
         val name: String,
         private val index: Int? = null
-) : Describe {
+) {
 
     val qualifiedName: String
         get() = "$name${index?.let { "[$it]" } ?: ""}"
-
-    override fun describe(i: Int): String = qualifiedName
 }
 
 interface KeyModifier {
