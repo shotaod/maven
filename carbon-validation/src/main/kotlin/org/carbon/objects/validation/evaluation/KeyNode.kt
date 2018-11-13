@@ -11,15 +11,6 @@ class Key(private val keys: List<KeyNode>) : List<KeyNode> by keys, Describe {
         get() = keys.map(KeyNode::qualifiedName).joinToString(".")
 
     override fun describe(i: Int): String = qualifiedName
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is KeyNode) return false
-
-        return this.qualifiedName == other.qualifiedName
-    }
-
-    override fun hashCode(): Int = this.qualifiedName.hashCode()
 }
 
 class KeyNode(
