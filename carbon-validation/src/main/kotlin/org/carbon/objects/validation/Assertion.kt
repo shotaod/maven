@@ -1,11 +1,10 @@
 package org.carbon.objects.validation
 
-import org.carbon.objects.validation.OtherwiseClause.Companion.delegateOtherwise
 import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.IndexModifier
-import org.carbon.objects.validation.evaluation.KeyModifier
-import org.carbon.objects.validation.evaluation.NameModifier
-import org.carbon.objects.validation.evaluation.rejection.RootRejection
+import org.carbon.objects.validation.evaluation.KeyAppender
+import org.carbon.objects.validation.evaluation.NameAppender
+import org.carbon.objects.validation.evaluation.rejection.MutableReferenceRejection
 
 typealias Expression = () -> Evaluation
 typealias TypedExpression<T> = (T) -> Evaluation
@@ -17,66 +16,73 @@ interface Validated<T : Validated<T>> {
 }
 
 class Assertion {
-    val rejection: RootRejection = RootRejection()
+    private val rejectionRef: MutableReferenceRejection = MutableReferenceRejection()
 
-    fun isValid(): Boolean = rejection.isValid()
+    val evaluation
+        get() = when {
+            rejectionRef.isEmpty() -> Evaluation.Accepted
+            else -> Evaluation.Rejected(rejectionRef)
+        }
 
-    infix fun String.should(expression: TypedExpression<String>) = delegateOtherwise(rejection) { expression(this) }
+    // -----------------------------------------------------
+    //                                               DSL
+    //                                               -------
+    infix fun <T> T.should(expression: TypedExpression<T>) = OtherwiseClause.byUnit(rejectionRef) { expression(this) }
 
-    infix fun Int.should(expression: TypedExpression<Int>) = delegateOtherwise(rejection) { expression(this) }
+    fun <T : Validated<T>> T.shouldValidated() = OtherwiseClause.byUnit(rejectionRef, this::validate)
 
-    infix fun <T> T.should(expression: TypedExpression<T>) = delegateOtherwise(rejection) { expression(this) }
+    infix fun <T> Iterable<T>.shouldEach(expression: TypedExpression<T>) = OtherwiseClause.byIndexed(
+            rejectionRef,
+            this.map { { expression(it) } })
 
-    fun <T : Validated<T>> T.shouldValidated() = delegateOtherwise(rejection) { this.validate() }
-
-    infix fun <T> Iterable<T>.shouldEach(expression: TypedExpression<T>) = delegateOtherwise(rejection, this.map { { expression(it) } })
-
-    fun <T : Validated<T>> Iterable<T>.shouldEachValidated() = delegateOtherwise(rejection, this.map { { it.validate() } })
+    fun <T : Validated<T>> Iterable<T>.shouldEachValidated() = OtherwiseClause.byIndexed(
+            rejectionRef,
+            this.map { it::validate })
 }
 
 // ===================================================================================
 //                                                                     OtherwiseClause
 //                                                                          ==========
 sealed class OtherwiseClause {
-    abstract val rejection: RootRejection
-    infix fun otherwise(keyModifier: KeyModifier) = evaluate(keyModifier)
+    protected abstract val rejection: MutableReferenceRejection
+    infix fun otherwise(keyAppender: KeyAppender) = evaluate(keyAppender)
 
-    abstract fun evaluate(keyModifier: KeyModifier)
+    abstract fun evaluate(keyAppender: KeyAppender)
 
     companion object {
-        fun delegateOtherwise(rejection: RootRejection, expression: Expression): OtherwiseClause =
+        fun byUnit(rejection: MutableReferenceRejection, expression: Expression): OtherwiseClause =
                 UnitOtherwiseClause(rejection, expression)
 
-        fun delegateOtherwise(rejection: RootRejection, expressions: List<Expression>): OtherwiseClause =
+        fun byIndexed(rejection: MutableReferenceRejection, expressions: List<Expression>): OtherwiseClause =
                 IndexedOtherwiseClause(rejection, expressions)
     }
 
-    open class UnitOtherwiseClause(
-            override val rejection: RootRejection,
+    class UnitOtherwiseClause(
+            override val rejection: MutableReferenceRejection,
             private val expression: Expression
     ) : OtherwiseClause() {
-        override fun evaluate(keyModifier: KeyModifier) {
+        override fun evaluate(keyAppender: KeyAppender) {
             val evaluation = expression()
-            if (evaluation is Evaluation.Rejection<*>)
-                rejection.addRejection(evaluation modify keyModifier)
+            if (evaluation is Evaluation.Rejected)
+                rejection.add(evaluation positionedBy keyAppender)
         }
     }
 
     class IndexedOtherwiseClause(
-            override val rejection: RootRejection,
+            override val rejection: MutableReferenceRejection,
             private val expressions: List<Expression>
     ) : OtherwiseClause() {
-        override fun evaluate(keyModifier: KeyModifier) {
+        override fun evaluate(keyAppender: KeyAppender) {
             expressions
                     .asSequence()
                     .mapIndexed { i, expr ->
-                        (expr() as? Evaluation.Rejection<*>)
+                        (expr() as? Evaluation.Rejected)
                                 ?.let {
-                                    it modify keyModifier modify IndexModifier(i)
+                                    it positionedBy keyAppender positionedBy IndexModifier(i)
                                 }
                     }
                     .filterNotNull()
-                    .forEach { rejection.addRejection(it) }
+                    .forEach { rejection.add(it) }
         }
     }
 }
@@ -84,4 +90,4 @@ sealed class OtherwiseClause {
 // ===================================================================================
 //                                                                        Modifier API
 //                                                                          ==========
-fun String.invalidate() = NameModifier(this)
+fun String.invalidate() = NameAppender(this)
