@@ -20,7 +20,7 @@ build.gradle
 ext {
     ver = ext {
         carbon = ext {
-            validaton = '0.3.3'
+            validaton = '0.4'
         }
     }
 }
@@ -39,7 +39,7 @@ pom.xml
 ```xml
 <project>
     <properties>
-        <carbonValidationVersion>0.3.3</carbonValidationVersion>
+        <carbonValidationVersion>0.4</carbonValidationVersion>
     </properties>
 
     <repositories>
