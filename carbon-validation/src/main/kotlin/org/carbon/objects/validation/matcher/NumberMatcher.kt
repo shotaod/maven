@@ -1,7 +1,6 @@
 package org.carbon.objects.validation.matcher
 
 import org.carbon.objects.validation.BeCounterExpression
-import org.carbon.objects.validation.Logical
 import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.source.BasicCode
 import org.carbon.objects.validation.evaluation.source.LengthCode
@@ -9,15 +8,15 @@ import org.carbon.objects.validation.evaluation.source.NumberCode
 import org.carbon.objects.validation.evaluation.source.ParamList
 
 infix fun Int.eq(other: Int): Evaluation =
-        if (this == other) Evaluation.Acceptance
-        else this.reject(
+        if (this == other) Evaluation.Accepted
+        else reject(
                 BasicCode.Equal,
                 ParamList(listOf(this, other)),
                 "values \"$this\" and \"$other\" are not match"
         )
 
 infix fun Int.min(min: Int): Evaluation {
-    return if (this >= min) Evaluation.Acceptance
+    return if (this >= min) Evaluation.Accepted
     else this.reject(
             LengthCode.Min,
             ParamList(listOf(min)),
@@ -26,7 +25,7 @@ infix fun Int.min(min: Int): Evaluation {
 }
 
 infix fun Int.max(max: Int): Evaluation {
-    return if (this <= max) Evaluation.Acceptance
+    return if (this <= max) Evaluation.Accepted
     else this.reject(
             LengthCode.Max,
             ParamList(listOf(max)),
@@ -42,16 +41,19 @@ infix fun Int.withIn(range: IntRange): Evaluation {
 
     val evaluations = listOf(this.min(min), this.max(max))
     @Suppress("UNCHECKED_CAST")
-    val rejections = evaluations.filter { it !is Evaluation.Acceptance } as List<Evaluation.Rejection<Int>>
-    return if (rejections.isEmpty()) Evaluation.Acceptance
-    else this.reject(*rejections.toTypedArray(), logical = Logical.AND)
+    val rejections = evaluations.filter { it !is Evaluation.Accepted } as List<Evaluation.Rejected>
+    return if (rejections.isEmpty()) Evaluation.Accepted
+    else this.reject(
+            LengthCode.Range,
+            ParamList(listOf(min, max)),
+            "number mut be between $min and $max")
 }
 
 val WithIn: (range: IntRange) -> BeCounterExpression<Int> = { { this.withIn(it) } }
 
 fun Int.isNatural(): Evaluation =
-        if (this > 0) Evaluation.Acceptance
-        else this.reject(
+        if (this > 0) Evaluation.Accepted
+        else reject(
                 NumberCode.Natural,
                 ParamList(emptyList<Any>()),
                 "number must be natural"
