@@ -5,10 +5,8 @@ import io.kotlintest.matchers.collections.shouldContainAll
 import io.kotlintest.matchers.types.shouldBeTypeOf
 import io.kotlintest.should
 import io.kotlintest.shouldBe
-import io.kotlintest.shouldThrow
 import org.carbon.objects.validation.evaluation.Evaluation
 import org.carbon.objects.validation.evaluation.rejection.CompositeRejection
-import org.carbon.objects.validation.evaluation.rejection.RootRejection
 import org.carbon.objects.validation.evaluation.rejection.UnitRejection
 import org.carbon.objects.validation.evaluation.source.BasicCode
 import org.carbon.objects.validation.evaluation.source.CompositionCode
@@ -18,84 +16,60 @@ import org.carbon.objects.validation.evaluation.source.NumberCode
 import org.carbon.objects.validation.evaluation.source.StringCode
 import org.carbon.objects.validation.input.ClassRoomInput
 import org.carbon.objects.validation.input.FruitInput
-import org.carbon.objects.validation.input.IllegalMaxInput
-import org.carbon.objects.validation.input.IllegalMinInput
-import org.carbon.objects.validation.input.IllegalWithInInput
 import org.carbon.objects.validation.input.Input
 import org.carbon.objects.validation.input.PersonInput
-import org.carbon.objects.validation.schema.Apple
-import org.carbon.objects.validation.schema.DesiredCondition
-import org.carbon.objects.validation.schema.Resume
-import org.junit.jupiter.api.Test
+import org.carbon.objects.validation.template.Expected
+import org.carbon.objects.validation.template.ParameterTemplate
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import java.lang.IllegalStateException
-import kotlin.reflect.KClass
 
 /**
  * @author Soda 2018/10/08.
  */
-typealias Assertion = (Evaluation) -> Unit
-
 class ValidatorTest {
-    open class Expected {
-        private var _assertions: List<Assertion> = emptyList()
+    class StatementBaseExpected : Expected<StatementBaseExpected>() {
+        override val self: StatementBaseExpected
+            get() = this
 
-        open fun assert(describe: String, evalExp: () -> Evaluation) {
-            val evaluation = evalExp()
-            println("""
-                --------------------------------------------------
-                $describe
-                --------------------------------------------------
-
-                """.trimIndent() + evaluation.describe())
-            _assertions.forEach { it(evaluation) }
+        fun toBeObservance(): StatementBaseExpected = withAssertion { res ->
+            res.shouldBeTypeOf<Evaluation.Accepted>()
         }
 
-        private fun withAssertion(assertion: Assertion): Expected {
-            _assertions += assertion
-            return this
+        fun toBeViolation(): StatementBaseExpected = withAssertion { res ->
+            res should { (it is Evaluation.Rejected).shouldBeTrue() }
         }
 
-        fun toBeObservance(): Expected = withAssertion { res ->
-            res.shouldBeTypeOf<Evaluation.Acceptance>()
-        }
-
-        fun toBeViolation(): Expected = withAssertion { res ->
-            res should { (it is Evaluation.Rejection<*>).shouldBeTrue() }
-        }
-
-        fun hasNameViolation(): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["name"]
-            checkNotNull(rejection) { " key name should be exist" }
+        fun hasNameViolation(): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["name"]
+            checkNotNull(rejection) { "key name should be exist" }
             rejection.source.code.canonicalName shouldBe LengthCode.Max.canonicalName
             rejection.source.params[0] shouldBe 10
         }
 
-        fun hasEqualViolation(param1: String, param2: String): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["password"]
+        fun hasEqualViolation(param1: String, param2: String): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["password"]
             checkNotNull(rejection) { "key password should be exist" }
             rejection.source.code.canonicalName shouldBe BasicCode.Equal.canonicalName
             rejection.source.params[0] shouldBe param1
             rejection.source.params[1] shouldBe param2
         }
 
-        fun hasEmailViolation(at: Int): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["emails[$at]"]
+        fun hasEmailViolation(at: Int): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["emails[$at]"]
             checkNotNull(rejection) { "key emails[$at] should be exist" }
             rejection.source.code.canonicalName shouldBe StringCode.Email.canonicalName
             rejection.source.params should { it.isEmpty().shouldBeTrue() }
         }
 
-        fun hasPasswordTooShortViolation(): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["password"]
+        fun hasPasswordTooShortViolation(): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["password"]
             checkNotNull(rejection) { "key password should be exist" }
             rejection.source.code.canonicalName shouldBe LengthCode.Min.canonicalName
             rejection.source.params[0] shouldBe 8
         }
 
-        fun hasPasswordRequirementsViolation(): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["password"]
+        fun hasPasswordRequirementsViolation(): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["password"]
             checkNotNull(rejection) { "key password should be exist" }
 
             val andNode = rejection.source.params[0]
@@ -114,54 +88,56 @@ class ValidatorTest {
             orNodeSource2.params.all().shouldContainAll("1234567890".toCharArray().map(Char::toString))
         }
 
-        fun hasAgeNoWayViolation(): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["age"]
+        fun hasAgeNoWayViolation(): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["age"]
             checkNotNull(rejection) { "key age should be exist" }
-            rejection.source.code.canonicalName shouldBe LengthCode.Max.canonicalName
-            rejection.source.params[0] shouldBe 150
+            rejection.source.code.canonicalName shouldBe LengthCode.Range.canonicalName
+            rejection.source.params[0] shouldBe 0
+            rejection.source.params[1] shouldBe 150
         }
 
 
-        fun hasIllegalURLViolation(): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["resume.portfolioUrl"]
+        fun hasIllegalURLViolation(): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["resume.portfolioUrl"]
             checkNotNull(rejection) { "key resume.portfolioUrl should be exist" }
             rejection.source.code.canonicalName shouldBe StringCode.URL.canonicalName
         }
 
-        fun hasIllegalIncomeViolation(): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["resume.income"]
+        fun hasIllegalIncomeViolation(): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["resume.income"]
             checkNotNull(rejection) { "resume.income should be exist" }
             rejection.key.qualifiedName shouldBe "resume.income"
             rejection.source.code.canonicalName shouldBe NumberCode.Natural.canonicalName
         }
 
-        fun hasNotMentionedCertification(): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["resume.text"]
+        fun hasNotMentionedCertification(): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["resume.text"]
             checkNotNull(rejection) { "resume.text should be exist" }
             rejection.source.code.canonicalName shouldBe IncludeCode.All.canonicalName
         }
 
-        fun hasIllegalPhoneNumber(): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["phoneNumber"]
+        fun hasIllegalPhoneNumber(): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["phoneNumber"]
             checkNotNull(rejection) { "phoneNumber should be exist" }
             rejection.source.code.canonicalName shouldBe StringCode.Regex.canonicalName
         }
 
-        fun hasCheerUpPersonToDemandMonthlyIncomeViolation(): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["desiredCondition.monthlyIncome"]
+        fun hasCheerUpPersonToDemandMonthlyIncomeViolation(): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["desiredCondition.monthlyIncome"]
             checkNotNull(rejection) { "desiredCondition.monthlyIncome should be exist" }
             rejection.source.code.canonicalName shouldBe LengthCode.Min.canonicalName
         }
 
-        fun hasOnePasswordRequirementsViolation(): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["onetimePw"]
+        fun hasOnePasswordRequirementsViolation(): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["onetimePw"]
             checkNotNull(rejection) { "onetimePw should be exist" }
-            rejection.source.code.canonicalName shouldBe LengthCode.Max.canonicalName
-            rejection.source.params[0] shouldBe 9999
+            rejection.source.code.canonicalName shouldBe LengthCode.Range.canonicalName
+            rejection.source.params[0] shouldBe 0
+            rejection.source.params[1] shouldBe 9999
         }
 
-        fun hasMergedBananaViolation(): Expected = withAssertion { res ->
-            val rejection = (res as RootRejection)["name"]
+        fun hasMergedBananaViolation(): StatementBaseExpected = withAssertion { res ->
+            val rejection = (res as Evaluation.Rejected)["name"]
             checkNotNull(rejection) { "name should be exist" }
             rejection.source.code.canonicalName shouldBe CompositionCode.And.canonicalName
             rejection.source.params.size shouldBe 2
@@ -170,137 +146,89 @@ class ValidatorTest {
         }
     }
 
-    class ThrowExpected : Expected() {
-        override fun assert(describe: String, evalExp: () -> Evaluation) {
-            println("""
-                --------------------------------------------------
-                $describe
-                --------------------------------------------------
-                throw -> ${type.simpleName}
-            """.trimIndent())
-            assertThrow(evalExp)
-        }
-
-        var assertThrow: (eval: () -> Evaluation) -> Unit = {}
-        var type: KClass<*> = Exception::class
-
-        inline fun <reified T : Throwable> throws(): Expected {
-            type = T::class
-            assertThrow = { it -> shouldThrow<T>(it) }
-            return this
-        }
-    }
-
-    companion object {
+    companion object : ParameterTemplate() {
         @Suppress("unused")
         @JvmStatic
-        fun data() = listOf(
+        override fun data() = listOf(
                 case("[observance] no violation")(
                         PersonInput(),
-                        Expected().toBeObservance()),
+                        StatementBaseExpected().toBeObservance()),
                 case("[violation] name too long")(
                         PersonInput().name("too long name..."),
-                        Expected().toBeViolation().hasNameViolation()),
+                        StatementBaseExpected().toBeViolation().hasNameViolation()),
                 case("[violation] correlation violation")(
                         PersonInput().password("password1").password2("hogehoge"),
-                        Expected().toBeViolation().hasEqualViolation(param1 = "password1", param2 = "hogehoge")),
+                        StatementBaseExpected().toBeViolation().hasEqualViolation(param1 = "password1", param2 = "hogehoge")),
                 case("[violation] with suitable index")(
                         PersonInput().emails("email@valid.com", "email@..invalid"),
-                        Expected().toBeViolation().hasEmailViolation(at = 1)),
+                        StatementBaseExpected().toBeViolation().hasEmailViolation(at = 1)),
                 case("[violation] password too short violation")(
                         PersonInput().password("short$").password2("short$"),
-                        Expected().toBeViolation().hasPasswordTooShortViolation()),
+                        StatementBaseExpected().toBeViolation().hasPasswordTooShortViolation()),
                 case("[violation] password doesn't meet requirements")(
                         PersonInput().password("hogehoge"),
-                        Expected().toBeViolation().hasPasswordRequirementsViolation()),
+                        StatementBaseExpected().toBeViolation().hasPasswordRequirementsViolation()),
                 case("[violation] onetime password doesn't meet requirements")(
                         PersonInput().onetimePw(12345),
-                        Expected().toBeViolation().hasOnePasswordRequirementsViolation()),
+                        StatementBaseExpected().toBeViolation().hasOnePasswordRequirementsViolation()),
                 case("[violation] person is phoenix")(
                         PersonInput().age(1234),
-                        Expected().toBeViolation().hasAgeNoWayViolation()),
+                        StatementBaseExpected().toBeViolation().hasAgeNoWayViolation()),
                 case("[violation] person wanna be jobless")(
                         PersonInput().desiredMonthlyIncome(0),
-                        Expected().toBeViolation().hasCheerUpPersonToDemandMonthlyIncomeViolation()
+                        StatementBaseExpected().toBeViolation().hasCheerUpPersonToDemandMonthlyIncomeViolation()
                 ),
                 case("[violation] phone number is illegal")(
                         PersonInput().phoneNumber("123----0"),
-                        Expected().toBeViolation().hasIllegalPhoneNumber()),
+                        StatementBaseExpected().toBeViolation().hasIllegalPhoneNumber()),
                 case("[violation] portfolio is invalid url")(
                         PersonInput().portfolioUrl("invalid:$/url.com"),
-                        Expected().toBeViolation().hasIllegalURLViolation()),
+                        StatementBaseExpected().toBeViolation().hasIllegalURLViolation()),
                 case("[violation] income is negative")(
                         PersonInput().income(-1000),
-                        Expected().toBeViolation().hasIllegalIncomeViolation()),
+                        StatementBaseExpected().toBeViolation().hasIllegalIncomeViolation()),
                 case("[violation] certification is not mentioned at resume")(
                         PersonInput()
                                 .certifications(listOf(
                                         "Oracle Certified Java Programmer",
                                         "AWS Certified Solutions Architect"))
                                 .resumeText("I have over 1 year of experience developing Kotlin and Swift"),
-                        Expected().toBeViolation().hasNotMentionedCertification()),
+                        StatementBaseExpected().toBeViolation().hasNotMentionedCertification()),
                 case("[violation] apple should be apple")(
                         FruitInput().apple(),
-                        Expected().toBeObservance()
+                        StatementBaseExpected().toBeObservance()
                 ),
                 case("[violation] banana must not be apple with merge test")(
                         FruitInput().fakeBanana(),
-                        Expected().toBeViolation()
+                        StatementBaseExpected().toBeViolation()
                                 .hasMergedBananaViolation()
                 ),
                 case("[observance] nested validation success")(
                         ClassRoomInput()
-                                .person(PersonInput())
-                                .person(PersonInput())
-                                .person(PersonInput()),
-                        Expected().toBeObservance()),
+                                .person { }
+                                .person { }
+                                .person { },
+                        StatementBaseExpected().toBeObservance()),
                 case("[violation] nested data violation")(
                         ClassRoomInput()
-                                .person(PersonInput().name("too long name...").certifications(listOf("NONE")))
-                                .person(PersonInput().password("password1").password2("hogehoge"))
-                                .person(PersonInput().emails("email@valid.com", "email@..invalid")),
-                        Expected().toBeViolation()),
-                case("[illegal] schema definition use illegal min")(
-                        IllegalMinInput(),
-                        ThrowExpected().throws<IllegalArgumentException>()),
-                case("[illegal] schema definition use illegal max")(
-                        IllegalMaxInput(),
-                        ThrowExpected().throws<IllegalArgumentException>()),
-                case("[illegal] schema definition use illegal within")(
-                        IllegalWithInInput(),
-                        ThrowExpected().throws<IllegalArgumentException>())
+                                .person {
+                                    name("too long name...")
+                                    certifications(listOf("NONE"))
+                                }
+                                .person {
+                                    password("password1")
+                                    password2("hogehoge")
+                                }
+                                .person {
+                                    emails("email@valid.com", "email@..invalid")
+                                },
+                        StatementBaseExpected().toBeViolation())
         )
-
-        private val case: (describe: String) -> (input: Input, expected: Expected) -> Array<Any> = { describe ->
-            { input, expected ->
-                arrayOf(describe, input, expected)
-            }
-        }
     }
 
     @ParameterizedTest(name = "Validate Test[{index}] {0}")
     @MethodSource("data")
-    fun validate(describe: String, input: Input, expected: Expected) {
+    fun validate(describe: String, input: Input, expected: StatementBaseExpected) {
         expected.assert(describe, input::tryValidate)
-    }
-
-    @Test
-    internal fun flattenShouldBeForInternalUsage() {
-        val cheapSalary = 1000
-        val validation = DesiredCondition(cheapSalary).validate()
-        validation.shouldBeTypeOf<RootRejection>()
-        shouldThrow<IllegalStateException> {
-            (validation as RootRejection).flatten()
-        }
-    }
-
-    @Test
-    internal fun shouldHaveEntriesAPI() {
-        val validation = PersonInput().name("s").password("illegal").tryValidate()
-        validation.shouldBeTypeOf<RootRejection>()
-        val rootRejection = validation as RootRejection
-        println(rootRejection.describe())
-        val entries = rootRejection.entries()
-        entries.size shouldBe 2
     }
 }
