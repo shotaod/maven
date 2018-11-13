@@ -9,8 +9,8 @@ import org.carbon.objects.validation.evaluation.source.ParamList
 import org.carbon.objects.validation.evaluation.source.StringCode
 
 infix fun String.eq(other: String): Evaluation =
-        if (this == other) Evaluation.Acceptance
-        else this.reject(
+        if (this == other) Evaluation.Accepted
+        else reject(
                 BasicCode.Equal,
                 ParamList(listOf(this, other)),
                 "two values are not match"
@@ -18,8 +18,8 @@ infix fun String.eq(other: String): Evaluation =
 
 infix fun String.min(min: Int): Evaluation =
         if (min < 0) throw IllegalArgumentException("Min (value=$min) should be greater than or equal 0.")
-        else if (this.length > min) Evaluation.Acceptance
-        else this.reject(
+        else if (this.length > min) Evaluation.Accepted
+        else reject(
                 LengthCode.Min,
                 ParamList(listOf(min)),
                 "length should be greater or equal $min"
@@ -27,24 +27,24 @@ infix fun String.min(min: Int): Evaluation =
 
 infix fun String.max(max: Int): Evaluation =
         if (max < 0) throw IllegalArgumentException("Max (value=$max) should be greater than or equal 0.")
-        else if (this.length < max) Evaluation.Acceptance
-        else this.reject(
+        else if (this.length < max) Evaluation.Accepted
+        else reject(
                 LengthCode.Max,
                 ParamList(listOf(max)),
                 "length should be less or equal $max"
         )
 
 infix fun String.has(string: String): Evaluation =
-        if (string in this) Evaluation.Acceptance
-        else this.reject(
+        if (string in this) Evaluation.Accepted
+        else reject(
                 StringCode.Contain,
                 ParamList(listOf(string)),
                 "Should contain $string"
         )
 
 infix fun String.length(length: Int): Evaluation =
-        if (this.length == length) Evaluation.Acceptance
-        else this.reject(
+        if (this.length == length) Evaluation.Accepted
+        else reject(
                 LengthCode.Equal,
                 ParamList(listOf(length)),
                 "Number of letters Should be $length"
@@ -63,16 +63,16 @@ sealed class IncludeShape {
 
 infix fun String.include(shape: IncludeShape): Evaluation = when (shape) {
     is IncludeShape.AnyOf -> {
-        if (shape.text.any { it in this }) Evaluation.Acceptance
-        else this.reject(
+        if (shape.text.any { it in this }) Evaluation.Accepted
+        else reject(
                 IncludeCode.Any,
                 ParamList(shape.text.toList()),
                 "Should include one of [${shape.text.joinToString(", ")}]"
         )
     }
     is IncludeShape.AllOf -> {
-        if (shape.text.all { it in this }) Evaluation.Acceptance
-        else this.reject(
+        if (shape.text.all { it in this }) Evaluation.Accepted
+        else reject(
                 IncludeCode.All,
                 ParamList(shape.text.toList()),
                 "Should include all of [${shape.text.joinToString(", ")}]"
@@ -83,8 +83,8 @@ infix fun String.include(shape: IncludeShape): Evaluation = when (shape) {
 private val regCache: MutableMap<String, Regex> = mutableMapOf()
 infix fun String.matchReg(regStr: String): Evaluation {
     val regex = regCache.computeIfAbsent(regStr) { regStr.toRegex() }
-    return if (regex.matches(this)) Evaluation.Acceptance
-    else this.reject(
+    return if (regex.matches(this)) Evaluation.Accepted
+    else reject(
             StringCode.Regex,
             ParamList(listOf(regex)),
             "Should match $regStr"
@@ -97,8 +97,8 @@ val Reg: (reg: String) -> BeCounterExpression<String> = { { this.matchReg(it) } 
 private val urlRegex = "^(https?)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]".toRegex()
 private val emailRegex = "^[a-zA-Z0-9!#$%&'_`/=~*+\\-?^{|}]+(\\.[a-zA-Z0-9!#$%&'_`/=~*+\\-?^{|}]+)*+(.*)@[a-zA-Z0-9][a-zA-Z0-9\\-]*(\\.[a-zA-Z0-9\\-]+)+$".toRegex()
 fun String.isEmail(): Evaluation =
-        if (emailRegex.matches(this)) Evaluation.Acceptance
-        else this.reject(
+        if (emailRegex.matches(this)) Evaluation.Accepted
+        else reject(
                 StringCode.Email,
                 ParamList(emptyList<String>()),
                 "illegal email format"
@@ -107,8 +107,8 @@ fun String.isEmail(): Evaluation =
 val Email: BeCounterExpression<String> = { this.isEmail() }
 
 fun String.isURL(): Evaluation =
-        if (urlRegex.matches(this)) Evaluation.Acceptance
-        else this.reject(
+        if (urlRegex.matches(this)) Evaluation.Accepted
+        else reject(
                 StringCode.URL,
                 ParamList(emptyList<String>()),
                 "illegal URL format"
