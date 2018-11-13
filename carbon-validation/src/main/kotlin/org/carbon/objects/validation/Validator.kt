@@ -9,10 +9,7 @@ object Validator {
     fun <T : Validated<T>> validate(test: T): Evaluation {
         val assert = Assertion()
         test.def(assert, test)
-        return when {
-            assert.isValid() -> Evaluation.Acceptance
-            else -> assert.rejection
-        }
+        return assert.evaluation
     }
 }
 
