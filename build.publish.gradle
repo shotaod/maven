@@ -30,7 +30,7 @@ subprojects {
             maven {
                 def releaseDir = Paths.get(rootDir.absolutePath, '/docs/release')
                 println """
-                            | Gloabl Publish Settings
+                            | Global Publish Settings
                             | artifact path @ $releaseDir
                         """.stripMargin()
                 url releaseDir.toUri()
