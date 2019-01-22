@@ -1,10 +1,10 @@
-package org.carbon.composer
+package org.carbon.kompose
 
 import io.kotlintest.shouldBe
-import org.carbon.composer.KomposerKtTest.ForHereOrToGo.ForHere
-import org.carbon.composer.KomposerKtTest.ForHereOrToGo.ToGo
-import org.carbon.composer.KomposerKtTest.Pos.Bot
-import org.carbon.composer.KomposerKtTest.Pos.Top
+import org.carbon.kompose.KomposerKtTest.ForHereOrToGo.ForHere
+import org.carbon.kompose.KomposerKtTest.ForHereOrToGo.ToGo
+import org.carbon.kompose.KomposerKtTest.Pos.Bot
+import org.carbon.kompose.KomposerKtTest.Pos.Top
 import org.junit.jupiter.api.Test
 
 @Suppress("MemberVisibilityCanBePrivate", "PropertyName")
@@ -13,7 +13,7 @@ class KomposerKtTest {
     // ______________________________________________________
     //
     // @ Hamburger Shop Ingredients
-    object Buns : Composable<String>() {
+    object Buns : Komposable<String>() {
         const val crown = "🍔🍔🍔🍔"
         const val heel = "🍞🍞🍞🍞"
         override fun invoke(): String = listOf(crown, super.callChild(), heel)
@@ -24,7 +24,7 @@ class KomposerKtTest {
         Top, Bot,
     }
 
-    abstract class Topping(val value: String, val pos: Pos) : Composable<String>() {
+    abstract class Topping(val value: String, val pos: Pos) : Komposable<String>() {
         override fun invoke(): String =
             when (pos) {
                 Top -> listOf(value, super.callChild())
@@ -97,7 +97,7 @@ class KomposerKtTest {
     }
 
     data class PlayGameEmotion(val describe: String)
-    class PlayGame : Composable<String>() {
+    class PlayGame : Komposable<String>() {
         override fun invoke(): String {
             // play the game ...
             // and then ... win!
@@ -107,7 +107,7 @@ class KomposerKtTest {
     }
 
     data class DoHomeworkEmotion(val describe: String)
-    class DoHomework : Composable<String>() {
+    class DoHomework : Komposable<String>() {
         override fun invoke(): String {
             // do homework ...
             // and then ... it's too difficult to do
@@ -117,7 +117,7 @@ class KomposerKtTest {
     }
 
     data class WatchMovieEmotion(val describe: String)
-    class WatchMovie : Composable<String>() {
+    class WatchMovie : Komposable<String>() {
         override fun invoke(): String {
             // watch a heartwarming movie
             // and then ... be deeply moved

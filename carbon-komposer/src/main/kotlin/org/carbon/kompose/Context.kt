@@ -1,4 +1,4 @@
-package org.carbon.composer
+package org.carbon.kompose
 
 import kotlin.reflect.KClass
 
