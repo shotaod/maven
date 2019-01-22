@@ -2,9 +2,7 @@ rootProject.name = 'carbon-maven'
 
 fileTree('.') {
     include '**/build.gradle'
-    exclude(
-            'build.gradle', // Exclude the root build file.
-    )
+    exclude 'build.gradle' // Exclude the root build file.
 }.collect {
     relativePath(it.parent).replace(File.separator, ':')
 }.sort().each {
