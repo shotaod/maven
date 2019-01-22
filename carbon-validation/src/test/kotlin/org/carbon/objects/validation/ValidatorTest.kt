@@ -150,79 +150,79 @@ class ValidatorTest {
         @Suppress("unused")
         @JvmStatic
         override fun data() = listOf(
-                case("[observance] no violation")(
-                        PersonInput(),
-                        StatementBaseExpected().toBeObservance()),
-                case("[violation] name too long")(
-                        PersonInput().name("too long name..."),
-                        StatementBaseExpected().toBeViolation().hasNameViolation()),
-                case("[violation] correlation violation")(
-                        PersonInput().password("password1").password2("hogehoge"),
-                        StatementBaseExpected().toBeViolation().hasEqualViolation(param1 = "password1", param2 = "hogehoge")),
-                case("[violation] with suitable index")(
-                        PersonInput().emails("email@valid.com", "email@..invalid"),
-                        StatementBaseExpected().toBeViolation().hasEmailViolation(at = 1)),
-                case("[violation] password too short violation")(
-                        PersonInput().password("short$").password2("short$"),
-                        StatementBaseExpected().toBeViolation().hasPasswordTooShortViolation()),
-                case("[violation] password doesn't meet requirements")(
-                        PersonInput().password("hogehoge"),
-                        StatementBaseExpected().toBeViolation().hasPasswordRequirementsViolation()),
-                case("[violation] onetime password doesn't meet requirements")(
-                        PersonInput().onetimePw(12345),
-                        StatementBaseExpected().toBeViolation().hasOnePasswordRequirementsViolation()),
-                case("[violation] person is phoenix")(
-                        PersonInput().age(1234),
-                        StatementBaseExpected().toBeViolation().hasAgeNoWayViolation()),
-                case("[violation] person wanna be jobless")(
-                        PersonInput().desiredMonthlyIncome(0),
-                        StatementBaseExpected().toBeViolation().hasCheerUpPersonToDemandMonthlyIncomeViolation()
-                ),
-                case("[violation] phone number is illegal")(
-                        PersonInput().phoneNumber("123----0"),
-                        StatementBaseExpected().toBeViolation().hasIllegalPhoneNumber()),
-                case("[violation] portfolio is invalid url")(
-                        PersonInput().portfolioUrl("invalid:$/url.com"),
-                        StatementBaseExpected().toBeViolation().hasIllegalURLViolation()),
-                case("[violation] income is negative")(
-                        PersonInput().income(-1000),
-                        StatementBaseExpected().toBeViolation().hasIllegalIncomeViolation()),
-                case("[violation] certification is not mentioned at resume")(
-                        PersonInput()
-                                .certifications(listOf(
-                                        "Oracle Certified Java Programmer",
-                                        "AWS Certified Solutions Architect"))
-                                .resumeText("I have over 1 year of experience developing Kotlin and Swift"),
-                        StatementBaseExpected().toBeViolation().hasNotMentionedCertification()),
-                case("[violation] apple should be apple")(
-                        FruitInput().apple(),
-                        StatementBaseExpected().toBeObservance()
-                ),
-                case("[violation] banana must not be apple with merge test")(
-                        FruitInput().fakeBanana(),
-                        StatementBaseExpected().toBeViolation()
-                                .hasMergedBananaViolation()
-                ),
-                case("[observance] nested validation success")(
-                        ClassRoomInput()
-                                .person { }
-                                .person { }
-                                .person { },
-                        StatementBaseExpected().toBeObservance()),
-                case("[violation] nested data violation")(
-                        ClassRoomInput()
-                                .person {
-                                    name("too long name...")
-                                    certifications(listOf("NONE"))
-                                }
-                                .person {
-                                    password("password1")
-                                    password2("hogehoge")
-                                }
-                                .person {
-                                    emails("email@valid.com", "email@..invalid")
-                                },
-                        StatementBaseExpected().toBeViolation())
+            case("[observance] no violation")(
+                PersonInput(),
+                StatementBaseExpected().toBeObservance()),
+            case("[violation] name too long")(
+                PersonInput().name("too long name..."),
+                StatementBaseExpected().toBeViolation().hasNameViolation()),
+            case("[violation] correlation violation")(
+                PersonInput().password("password1").password2("hogehoge"),
+                StatementBaseExpected().toBeViolation().hasEqualViolation(param1 = "password1", param2 = "hogehoge")),
+            case("[violation] with suitable index")(
+                PersonInput().emails("email@valid.com", "email@..invalid"),
+                StatementBaseExpected().toBeViolation().hasEmailViolation(at = 1)),
+            case("[violation] password too short violation")(
+                PersonInput().password("short$").password2("short$"),
+                StatementBaseExpected().toBeViolation().hasPasswordTooShortViolation()),
+            case("[violation] password doesn't meet requirements")(
+                PersonInput().password("hogehoge"),
+                StatementBaseExpected().toBeViolation().hasPasswordRequirementsViolation()),
+            case("[violation] onetime password doesn't meet requirements")(
+                PersonInput().onetimePw(12345),
+                StatementBaseExpected().toBeViolation().hasOnePasswordRequirementsViolation()),
+            case("[violation] person is phoenix")(
+                PersonInput().age(1234),
+                StatementBaseExpected().toBeViolation().hasAgeNoWayViolation()),
+            case("[violation] person wanna be jobless")(
+                PersonInput().desiredMonthlyIncome(0),
+                StatementBaseExpected().toBeViolation().hasCheerUpPersonToDemandMonthlyIncomeViolation()
+            ),
+            case("[violation] phone number is illegal")(
+                PersonInput().phoneNumber("123----0"),
+                StatementBaseExpected().toBeViolation().hasIllegalPhoneNumber()),
+            case("[violation] portfolio is invalid url")(
+                PersonInput().portfolioUrl("invalid:$/url.com"),
+                StatementBaseExpected().toBeViolation().hasIllegalURLViolation()),
+            case("[violation] income is negative")(
+                PersonInput().income(-1000),
+                StatementBaseExpected().toBeViolation().hasIllegalIncomeViolation()),
+            case("[violation] certification is not mentioned at resume")(
+                PersonInput()
+                    .certifications(listOf(
+                        "Oracle Certified Java Programmer",
+                        "AWS Certified Solutions Architect"))
+                    .resumeText("I have over 1 year of experience developing Kotlin and Swift"),
+                StatementBaseExpected().toBeViolation().hasNotMentionedCertification()),
+            case("[violation] apple should be apple")(
+                FruitInput().apple(),
+                StatementBaseExpected().toBeObservance()
+            ),
+            case("[violation] banana must not be apple with merge test")(
+                FruitInput().fakeBanana(),
+                StatementBaseExpected().toBeViolation()
+                    .hasMergedBananaViolation()
+            ),
+            case("[observance] nested validation success")(
+                ClassRoomInput()
+                    .person { }
+                    .person { }
+                    .person { },
+                StatementBaseExpected().toBeObservance()),
+            case("[violation] nested data violation")(
+                ClassRoomInput()
+                    .person {
+                        name("too long name...")
+                        certifications(listOf("NONE"))
+                    }
+                    .person {
+                        password("password1")
+                        password2("hogehoge")
+                    }
+                    .person {
+                        emails("email@valid.com", "email@..invalid")
+                    },
+                StatementBaseExpected().toBeViolation())
         )
     }
 
