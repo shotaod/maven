@@ -13,8 +13,8 @@ buildscript {
             jayway = '2.4.0'
 
             carbon = ext {
-                validation = '0.1'
-                komposer = '0.1'
+                validation = '0.4'
+                kompose = '0.1.1'
             }
         }
         kotlinVersion = '1.3.0'
