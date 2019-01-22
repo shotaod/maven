@@ -58,7 +58,7 @@ pom.xml
 ```
 
 
-## Validation
+## Kompose
 
 |  items    |   |   |   |   |
 |-----------|---|---|---|---|
