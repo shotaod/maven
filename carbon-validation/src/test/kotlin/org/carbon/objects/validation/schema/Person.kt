@@ -18,15 +18,15 @@ import org.carbon.objects.validation.matcher.or
 import org.carbon.objects.validation.matcher.withIn
 
 data class Person(
-        val name: String,
-        val password: String,
-        val passwordConfirm: String,
-        val onetimePw: Int?,
-        val emails: List<String>,
-        val age: Int,
-        val phoneNumber: String?,
-        val resume: Resume,
-        val desiredCondition: DesiredCondition
+    val name: String,
+    val password: String,
+    val passwordConfirm: String,
+    val onetimePw: Int?,
+    val emails: List<String>,
+    val age: Int,
+    val phoneNumber: String?,
+    val resume: Resume,
+    val desiredCondition: DesiredCondition
 ) : Validated<Person> by PersonSchema
 
 object PersonSchema : Validated<Person> {
@@ -34,12 +34,12 @@ object PersonSchema : Validated<Person> {
         person.name should { and(it min 5, it max 10) } otherwise "name".invalidate()
         person.password should {
             and(
-                    or(
-                            it include AnyOfChar("~!@#$%^&*()"),
-                            it include AnyOfChar("1234567890")
-                    ),
-                    it min 8,
-                    it eq person.passwordConfirm
+                or(
+                    it include AnyOfChar("~!@#$%^&*()"),
+                    it include AnyOfChar("1234567890")
+                ),
+                it min 8,
+                it eq person.passwordConfirm
             )
         } otherwise "password".invalidate()
 
