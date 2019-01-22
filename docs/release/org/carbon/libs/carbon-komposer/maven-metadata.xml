@@ -3,10 +3,11 @@
   <groupId>org.carbon.libs</groupId>
   <artifactId>carbon-komposer</artifactId>
   <versioning>
-    <release>0.1</release>
+    <release>0.1.1</release>
     <versions>
       <version>0.1</version>
+      <version>0.1.1</version>
     </versions>
-    <lastUpdated>20190122191052</lastUpdated>
+    <lastUpdated>20190122192855</lastUpdated>
   </versioning>
 </metadata>
