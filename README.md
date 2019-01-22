@@ -73,7 +73,7 @@ pom.xml
 build.gradle
 ```groovy
 ext {
-    ver.carbon.kompose = '0.1'
+    ver.carbon.kompose = '0.1.1'
 }
 repository {
     maven {
@@ -90,7 +90,7 @@ pom.xml
 ```xml
 <project>
     <properties>
-        <carbonKomposeVersion>0.1</carbonKomposeVersion>
+        <carbonKomposeVersion>0.1.1</carbonKomposeVersion>
     </properties>
 
     <repositories>
